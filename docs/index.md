@@ -22,9 +22,9 @@ The format accommodates **non-standard cases** (e.g., LaserDisc PAL pilot bursts
 
 Each file type uses a distinct extension:
 
-- **Composite CVBS:** `<basename>.composite`
-- **Dual-File YC CVBS (Luma):** `<basename>.y`
-- **Dual-File YC CVBS (Chroma):** `<basename>.c`
+- **Composite CVBS:** `<basename>.cvbs`
+- **Dual-File YC CVBS (Luma):** `<basename>.cvbsy`
+- **Dual-File YC CVBS (Chroma):** `<basename>.cvbsc`
 
 ---
 
@@ -47,7 +47,7 @@ This specification supports two CVBS (Colour, Video, Blank, and Sync) storage re
 
 The specific sample range — sync tip, blanking, black, white, and peak levels together with any reserved protected values — is defined by the declared [Sample Encoding Preset](#sample-encoding-presets).
 
-For YC (`signal_type='yc'`) files using a Sample Encoding Preset with predefined 10-bit level mapping (for example `CVBS_U10_4FSC`, `CVBS_U16_4FSC`, `CVBS_TPG21_4FSC`, and `CVBS_S16_4FSC`), luma (`.y`) follows the same level definitions as composite output, while chroma (`.c`) is represented in a centred 10-bit domain with chroma zero at sample value 512. Any preset-defined integer-domain translation applied to luma must also be applied identically to chroma in that preset's domain.
+For YC (`signal_type='yc'`) files using a Sample Encoding Preset with predefined 10-bit level mapping (for example `CVBS_U10_4FSC`, `CVBS_U16_4FSC`, `CVBS_TPG21_4FSC`, and `CVBS_S16_4FSC`), luma (`.cvbsy`) follows the same level definitions as composite output, while chroma (`.cvbsc`) is represented in a centred 10-bit domain with chroma zero at sample value 512. Any preset-defined integer-domain translation applied to luma must also be applied identically to chroma in that preset's domain.
 
 ### File Layout
 
@@ -180,7 +180,7 @@ The `cvbs_file` table records file-level metadata. There is one row per CVBS fil
 - **Type:** TEXT
 - **Nullable:** No
 - **Range:** `'composite'`, `'yc'`
-- **Description:** Declares whether the accompanying CVBS data file is a composite signal (`'composite'`, paired with a `.composite` file) or one file of a dual-file YC pair (`'yc'`, paired with a `.y` or `.c` file). This allows consumers to determine the project type explicitly without relying on file presence detection.
+- **Description:** Declares whether the accompanying CVBS data file is a composite signal (`'composite'`, paired with a `.cvbs` file) or one file of a dual-file YC pair (`'yc'`, paired with a `.cvbsy` or `.cvbsc` file). This allows consumers to determine the project type explicitly without relying on file presence detection.
 
 #### `decoder`
 

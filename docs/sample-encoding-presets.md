@@ -21,10 +21,10 @@ This encoding is known as the **cvbs-encode** encoding.
 
 **Amplitude mapping:** The sync tip, blanking, black, white, and peak 10-bit sample values are defined by the declared Video Standard Preset. The sample level tables in [video-standard-presets](video-standard-presets.md) are the normative reference values for this encoding.
 
-For dual-file YC output (`.y` and `.c`) under `CVBS_U10_4FSC`, mapping is representation-specific:
+For dual-file YC output (`.cvbsy` and `.cvbsc`) under `CVBS_U10_4FSC`, mapping is representation-specific:
 
-- **Luma (`.y`):** Uses the same 10-bit level definitions as composite output (sync tip, blanking, black, white, and peak), with the same legal/range constraints.
-- **Chroma (`.c`):** Uses a centred 10-bit representation where chroma zero is at 512 (in the 0-1023 domain). Chroma excursion is represented as oscillation around this centre point.
+- **Luma (`.cvbsy`):** Uses the same 10-bit level definitions as composite output (sync tip, blanking, black, white, and peak), with the same legal/range constraints.
+- **Chroma (`.cvbsc`):** Uses a centred 10-bit representation where chroma zero is at 512 (in the 0-1023 domain). Chroma excursion is represented as oscillation around this centre point.
 
 Any integer-domain translation applied by the producer to `CVBS_U10_4FSC` sample values for luma must be applied identically to chroma before storage, preserving the same encoded-domain relationship between Y and C.
 
@@ -44,10 +44,10 @@ The six least-significant bits of every stored sample word are always zero. To r
 
 **Amplitude mapping:** The sync tip, blanking, black, white, and peak values are exactly those of `CVBS_U10_4FSC`, scaled by ×64 in storage. Equivalently, interpret stored samples by dividing by 64 to return to the normative 10-bit domain, then apply the Video Standard Preset level tables in [video-standard-presets](video-standard-presets.md).
 
-For dual-file YC output (`.y` and `.c`) under `CVBS_U16_4FSC`, mapping is representation-specific in the same way as `CVBS_U10_4FSC`, then scaled by ×64 for storage:
+For dual-file YC output (`.cvbsy` and `.cvbsc`) under `CVBS_U16_4FSC`, mapping is representation-specific in the same way as `CVBS_U10_4FSC`, then scaled by ×64 for storage:
 
-- **Luma (`.y`):** Uses the same 10-bit level definitions as composite output, then stores each sample as value ×64.
-- **Chroma (`.c`):** Uses a centred 10-bit representation where chroma zero is at 512, then stores each sample as value ×64 (chroma zero at 32768 in the unsigned 16-bit domain).
+- **Luma (`.cvbsy`):** Uses the same 10-bit level definitions as composite output, then stores each sample as value ×64.
+- **Chroma (`.cvbsc`):** Uses a centred 10-bit representation where chroma zero is at 512, then stores each sample as value ×64 (chroma zero at 32768 in the unsigned 16-bit domain).
 
 Any integer-domain translation applied by the producer to `CVBS_U16_4FSC` sample values for luma must be applied identically to chroma before storage, preserving the same encoded-domain relationship between Y and C.
 
@@ -106,10 +106,10 @@ $$
 
 **Amplitude mapping:** The sync tip, blanking, black, white, and peak 10-bit sample values are defined by the Video Standard Preset (see Section 4.2 of the main specification). The sample level tables in [video-standard-presets](video-standard-presets.md) are the normative reference values, interpreted in the 10-bit domain before applying the signed encoding described above.
 
-For dual-file YC output (`.y` and `.c`) under `CVBS_TPG21_4FSC`, interpretation is performed in the 10-bit domain before applying the fixed offset/scale encoding:
+For dual-file YC output (`.cvbsy` and `.cvbsc`) under `CVBS_TPG21_4FSC`, interpretation is performed in the 10-bit domain before applying the fixed offset/scale encoding:
 
-- **Luma (`.y`):** Uses the same 10-bit level definitions as composite output.
-- **Chroma (`.c`):** Uses a centred 10-bit representation where chroma zero is at 512, with excursion around that centre.
+- **Luma (`.cvbsy`):** Uses the same 10-bit level definitions as composite output.
+- **Chroma (`.cvbsc`):** Uses a centred 10-bit representation where chroma zero is at 512, with excursion around that centre.
 
 Any translation or offset behavior applied to luma in this preset's 10-bit interpretation domain must be applied identically to chroma before converting to stored int16 words.
 
@@ -140,10 +140,10 @@ $$
 
 **Amplitude mapping:** The sync tip, blanking, black, white, and peak 10-bit sample values are defined by the Video Standard Preset (see Section 4.2 of the main specification). The sample level tables in [video-standard-presets](video-standard-presets.md) are the normative reference values, interpreted in the 10-bit domain before applying the signed encoding described above.
 
-For dual-file YC output (`.y` and `.c`) under `CVBS_S16_4FSC`, interpretation is performed in the 10-bit domain before applying the offset/scale encoding:
+For dual-file YC output (`.cvbsy` and `.cvbsc`) under `CVBS_S16_4FSC`, interpretation is performed in the 10-bit domain before applying the offset/scale encoding:
 
-- **Luma (`.y`):** Uses the same 10-bit level definitions as composite output.
-- **Chroma (`.c`):** Uses a centred 10-bit representation where chroma zero is at 512 in the 10-bit domain, with excursion around that centre. In the stored int16 domain, chroma zero maps to (512 − blanking₁₀ᵦᵢₜ) × 32 (for example, 8192 for PAL, 8704 for NTSC and PAL_M).
+- **Luma (`.cvbsy`):** Uses the same 10-bit level definitions as composite output.
+- **Chroma (`.cvbsc`):** Uses a centred 10-bit representation where chroma zero is at 512 in the 10-bit domain, with excursion around that centre. In the stored int16 domain, chroma zero maps to (512 − blanking₁₀ᵦᵢₜ) × 32 (for example, 8192 for PAL, 8704 for NTSC and PAL_M).
 
 Any translation or offset behaviour applied to luma in this preset's 10-bit interpretation domain must be applied identically to chroma before converting to stored int16 words.
 
