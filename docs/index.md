@@ -359,3 +359,27 @@ The first audio sample in each channel pair WAV file is synchronous with the fir
 
 ---
 
+## Recommended Testing Limits (Informative)
+
+!!! note "Informative"
+    This section is informative only. Nothing in it is a conformance requirement; it provides recommended design and testing targets for producer and consumer implementations.
+
+The file format imposes no maximum on file length or frame count. However, the physical media this format serves — LaserDisc and analogue video tape — produce captures of predictable, and substantial, size. Producers and consumers should be designed and tested against these realistic sizes rather than short synthetic samples.
+
+The table below lists expected frame counts and approximate composite file sizes for common source material. Sizes are calculated for Sample Encoding Presets using 16-bit words (for example `CVBS_U10_4FSC`), where an `NTSC` frame is 477,750 samples (955,500 bytes) and a `PAL` frame is 709,379 samples (1,418,758 bytes):
+
+| Source                     | Typical duration         | Frames (`NTSC`) | Frames (`PAL`) | Approx. size (`NTSC` / `PAL`) |
+|----------------------------|--------------------------|-----------------|----------------|-------------------------------|
+| LaserDisc CAV, one side    | 30 min NTSC / 36 min PAL | 54,000          | 54,000         | ~52 GB / ~77 GB               |
+| LaserDisc CLV, one side    | 60 min NTSC / 64 min PAL | ~107,900        | 96,000         | ~103 GB / ~136 GB             |
+| VHS SP (T-120 / E-180)     | 2 h NTSC / 3 h PAL       | ~215,800        | 270,000        | ~206 GB / ~383 GB             |
+| VHS LP/EP, worst case      | 6 h                      | ~647,400        | 540,000        | ~619 GB / ~766 GB             |
+
+Based on these sizes, the following are recommended:
+
+- **Testing limit:** Producers and consumers should be verified against files of at least **650,000 frames** (approximately 6 hours of NTSC video, ~620 GB of composite sample data) — the practical worst case for the supported source media.
+- **64-bit file handling:** At roughly 1 MB per frame, even a few minutes of video exceeds 4 GiB. Implementations should use 64-bit file offsets and sizes throughout, and should process files as streams rather than loading them into memory in their entirety.
+- **Storage multipliers:** Dual-file YC storage approximately doubles the sample data size (separate `.cvbsy` and `.cvbsc` files). Each audio channel pair adds approximately 6.2 GB over 6 hours (48 kHz × 24-bit × 2 channels).
+
+---
+
