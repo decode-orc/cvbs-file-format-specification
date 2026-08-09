@@ -13,10 +13,10 @@ Examples:
 
 **External standard references used by these presets:**
 
-- [ITU-R BT.1700-1 (2005)](https://github.com/simoninns/analogue-video-specifications/blob/main/docs/video_formats/BT-1700-E/BT-1700-E.md), *Characteristics of composite video signals for conventional analogue television systems* — defines conventional analogue composite PAL signal formats, including 625-line PAL and 525-line PAL used by PAL-M, and includes the approved SMPTE 170M-2004 NTSC text in Annex 2.
-- [SMPTE 170M-2004](https://github.com/simoninns/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-170M-2004/SMPTE-170M-2004.md), *Composite Analog Video Signal - NTSC for Studio Applications* — defines the analogue 525-line, 59.94-field NTSC studio composite signal.
-- [SMPTE 244M-2003](https://github.com/simoninns/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-244M-2003/SMPTE-244M-2003.md), *Bit-Parallel Digital Interface for NTSC Composite Video Signals* — defines the 4fsc digital representation, sample phase, line structure, and 10-bit sample levels for NTSC composite video.
-- [EBU Tech. 3280-E](https://github.com/simoninns/analogue-video-specifications/blob/main/docs/video_formats/EBU-Tech-3280-E/EBU-Tech-3280-E.md), *Specification of interfaces for 625-line digital PAL signals* — defines the 625-line digital PAL composite interface, including 4fsc sample levels, sample phase, line structure, and PAL colour-frame relationship.
+- [ITU-R BT.1700-1 (2005)](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/BT-1700-E/BT-1700-E.md), *Characteristics of composite video signals for conventional analogue television systems* — defines conventional analogue composite PAL signal formats, including 625-line PAL and 525-line PAL used by PAL-M, and includes the approved SMPTE 170M-2004 NTSC text in Annex 2.
+- [SMPTE 170M-2004](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-170M-2004/SMPTE-170M-2004.md), *Composite Analog Video Signal - NTSC for Studio Applications* — defines the analogue 525-line, 59.94-field NTSC studio composite signal.
+- [SMPTE 244M-2003](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-244M-2003/SMPTE-244M-2003.md), *Bit-Parallel Digital Interface for NTSC Composite Video Signals* — defines the 4fsc digital representation, sample phase, line structure, and 10-bit sample levels for NTSC composite video.
+- [EBU Tech. 3280-E](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/EBU-Tech-3280-E/EBU-Tech-3280-E.md), *Specification of interfaces for 625-line digital PAL signals* — defines the 625-line digital PAL composite interface, including 4fsc sample levels, sample phase, line structure, and PAL colour-frame relationship.
 
 ---
 
@@ -36,8 +36,8 @@ This storage origin intentionally follows the `ld-decode`/`vhs-decode` TBC line 
 
 **External standards:**
 
-- [ITU-R BT.1700-1 (2005)](https://github.com/simoninns/analogue-video-specifications/blob/main/docs/video_formats/BT-1700-E/BT-1700-E.md), Annex 1 Part B: analogue 625-line PAL signal format used for PAL-I-style baseband CVBS characteristics.
-- [EBU Tech. 3280-E](https://github.com/simoninns/analogue-video-specifications/blob/main/docs/video_formats/EBU-Tech-3280-E/EBU-Tech-3280-E.md): digital 625-line PAL composite interface used for the 4fsc sampling structure, sample levels, line timing, and colour-frame relationship.
+- [ITU-R BT.1700-1 (2005)](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/BT-1700-E/BT-1700-E.md), Annex 1 Part B: analogue 625-line PAL signal format used for PAL-I-style baseband CVBS characteristics.
+- [EBU Tech. 3280-E](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/EBU-Tech-3280-E/EBU-Tech-3280-E.md): digital 625-line PAL composite interface used for the 4fsc sampling structure, sample levels, line timing, and colour-frame relationship.
 
 **Sampling rate:**
 
@@ -114,8 +114,8 @@ The PAL colour sequence cycles over **4 frames** and then repeats.
 
 **External standards:**
 
-- [SMPTE 170M-2004](https://github.com/simoninns/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-170M-2004/SMPTE-170M-2004.md): analogue NTSC studio composite signal definition for 525-line, 59.94-field operation.
-- [SMPTE 244M-2003](https://github.com/simoninns/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-244M-2003/SMPTE-244M-2003.md): 4fsc digital representation used for NTSC sample levels, line structure, sample phase, and colour-frame relationship.
+- [SMPTE 170M-2004](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-170M-2004/SMPTE-170M-2004.md): analogue NTSC studio composite signal definition for 525-line, 59.94-field operation.
+- [SMPTE 244M-2003](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-244M-2003/SMPTE-244M-2003.md): 4fsc digital representation used for NTSC sample levels, line structure, sample phase, and colour-frame relationship.
 
 **Sampling rate:**
 
@@ -190,8 +190,8 @@ The NTSC colour sequence cycles over **2 frames**, conventionally labelled **A**
 
 **External standards:**
 
-- [ITU-R BT.1700-1 (2005)](https://github.com/simoninns/analogue-video-specifications/blob/main/docs/video_formats/BT-1700-E/BT-1700-E.md), Annex 1 Part B: analogue 525-line PAL signal format used for PAL-M timing, subcarrier frequency relationship, PAL colour modulation, and signal levels.
-- [SMPTE 244M-2003](https://github.com/simoninns/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-244M-2003/SMPTE-244M-2003.md): 525-line 4fsc digital composite coding reference used by this storage preset for the 10-bit sample-value mapping.
+- [ITU-R BT.1700-1 (2005)](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/BT-1700-E/BT-1700-E.md), Annex 1 Part B: analogue 525-line PAL signal format used for PAL-M timing, subcarrier frequency relationship, PAL colour modulation, and signal levels.
+- [SMPTE 244M-2003](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-244M-2003/SMPTE-244M-2003.md): 525-line 4fsc digital composite coding reference used by this storage preset for the 10-bit sample-value mapping.
 
 PAL-M uses 525-line/60 Hz timing with PAL colour subcarrier modulation, as described by the 525 PAL signal format in ITU-R BT.1700. The subcarrier relationship is `fsc = 909/4 fH`, so native 4fsc sampling gives 909 samples per line. The colour sequence repeats every **4 frames**, longer than NTSC's 2-frame colour sequence, due to the PAL colour encoding.
 
