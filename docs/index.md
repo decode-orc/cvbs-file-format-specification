@@ -231,7 +231,7 @@ The `cvbs_file` table records file-level metadata. There is one row per CVBS fil
 
 The `audio_channel_pair` table records per-channel-pair audio metadata. There is exactly one row per channel pair file present alongside the CVBS data file (see [Audio Data](#audio-data)); files without audio have no rows.
 
-A **channel pair** is two digital audio channels, generally derived from the same AES audio source, as defined by [SMPTE 272M-1994](https://github.com/simoninns/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-272M-1994/SMPTE-272M-1994.md) §3.11. All audio properties — sample rate, resolution, and synchronisation — are fixed by this specification (see [Audio Data](#audio-data)), so no per-pair format fields are required or permitted.
+A **channel pair** is two digital audio channels, generally derived from the same AES audio source, as defined by [SMPTE 272M-1994](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-272M-1994/SMPTE-272M-1994.md) §3.11. All audio properties — sample rate, resolution, and synchronisation — are fixed by this specification (see [Audio Data](#audio-data)), so no per-pair format fields are required or permitted.
 
 #### `channel_pair`
 
@@ -276,7 +276,7 @@ Full definitions: [signal-state-presets](signal-state-presets.md)
 
 ## Audio Data
 
-Audio handling in this specification follows [SMPTE 272M-1994](https://github.com/simoninns/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-272M-1994/SMPTE-272M-1994.md), *Formatting AES/EBU Audio and Auxiliary Data into Digital Video Ancillary Data Space*. SMPTE 272M provides a minimum of two audio channels and a maximum of 16 audio channels, transmitted in **channel pairs** (§1.4, §3.11); its preferred implementation is audio sampled at **48 kHz and clock locked (synchronous) to video** (§1.2), optionally carrying **24-bit** audio in which the four AES auxiliary bits extend the resolution of the 20-bit audio sample (§1.3, §3.10 — level C operation).
+Audio handling in this specification follows [SMPTE 272M-1994](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-272M-1994/SMPTE-272M-1994.md), *Formatting AES/EBU Audio and Auxiliary Data into Digital Video Ancillary Data Space*. SMPTE 272M provides a minimum of two audio channels and a maximum of 16 audio channels, transmitted in **channel pairs** (§1.4, §3.11); its preferred implementation is audio sampled at **48 kHz and clock locked (synchronous) to video** (§1.2), optionally carrying **24-bit** audio in which the four AES auxiliary bits extend the resolution of the 20-bit audio sample (§1.3, §3.10 — level C operation).
 
 This specification adopts that preferred implementation as its **only** permitted audio format:
 
