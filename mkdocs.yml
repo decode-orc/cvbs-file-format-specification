@@ -1,7 +1,7 @@
 site_name: CVBS File Format Specification
-site_url: https://simoninns.github.io/cvbs-file-format-specification
-repo_url: https://github.com/simoninns/cvbs-file-format-specification
-repo_name: simoninns/cvbs-file-format-specification
+site_url: https://decode-orc.github.io/cvbs-file-format-specification
+repo_url: https://github.com/decode-orc/cvbs-file-format-specification
+repo_name: decode-orc/cvbs-file-format-specification
 
 theme:
   name: material
