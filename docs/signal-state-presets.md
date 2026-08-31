@@ -12,7 +12,7 @@ A Signal State Preset captures three independent axes of the signal's **sampling
 | Time-base stable | Yes — fixed, known sample count per line; 0H-referenced fields | No — line lengths vary, timing is raw |
 | Phase locked | Yes — content is sampled at standard subcarrier-reference-locked phase points | No — content is not sampled at standard subcarrier-reference-locked phase points |
 
-These axes are independent, with one implication: phase locked requires time-base stable (and therefore `RAW` implies unlocked). In particular, a file can be time-base stable but not phase locked (e.g., standard NTSC `.tbc` — time-base corrected — output from `ld-decode` or `vhs-decode`: timing is corrected but the subcarrier phase at each field is not anchored to a canonical 0° reference), and a file at a non-standard sample rate can still be time-base stable (e.g., the output of a time-base corrector (TBC) running at an oversampled rate).
+These axes are independent, with one implication: phase locked requires time-base stable (and therefore `RAW` implies unlocked). In particular, a file can be time-base stable but not phase locked (e.g., standard NTSC output in the `.tbc` file format of `ld-decode` or `vhs-decode`: timing is corrected but the subcarrier phase at each field is not anchored to a canonical 0° reference), and a file at a non-standard sample rate can still be time-base stable (e.g., the output of a time-base corrector (TBC) running at an oversampled rate).
 
 ## Axis Definitions (Normative)
 
@@ -41,7 +41,7 @@ Notes:
 - Phase locked requires time-base stability; without a fixed sample-to-line relationship, phase cannot be computed from sample position.
 - Line-locked sampling that is not subcarrier-locked (for example 13.5 MHz component-style sampling of a composite signal) is time-base stable but **not** phase locked.
 - A signal with no usable subcarrier reference (for example monochrome material) cannot be phase locked and must be declared `UNLOCKED`.
-- For PAL, 4×fsc is not an integer multiple of the line frequency in the analogue domain, so a line-locked sampling *clock* cannot simultaneously be subcarrier-locked. The output of a *resampling* time-base correction process (for example the software TBC stage of `ld-decode`, which mathematically resamples the captured signal onto the ideal 4×fsc grid), however, can satisfy both properties in the stored digital domain, because a resampler is not constrained by a single physical clock; the phase-locked assertion applies to the stored samples under the declared preset's Sc/H convention.
+- For PAL, 4×fsc is not an integer multiple of the line frequency in the analogue domain, so a line-locked sampling *clock* cannot simultaneously be subcarrier-locked. The output of a *resampling* time-base correction process (for example `ld-decode`, which mathematically resamples the captured signal onto the ideal 4×fsc grid when producing its `.tbc`-format output), however, can satisfy both properties in the stored digital domain, because a resampler is not constrained by a single physical clock; the phase-locked assertion applies to the stored samples under the declared preset's Sc/H convention.
 
 ## Continuity is not a Preset Axis
 
