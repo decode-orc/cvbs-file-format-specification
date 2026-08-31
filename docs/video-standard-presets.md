@@ -28,7 +28,7 @@ Stored frames are **0H-aligned**. The horizontal timing reference **0H** is the 
 - **Vertical origin:** stored frame line 0 corresponds to frame line 1 of the 1-based broadcast frame line convention — the first line of field 1.
 - The exact sub-sample position of 0H relative to sample 0 is a consequence of the preset's sampling phase and SC/H relationship; it is not additionally constrained by this specification.
 
-This storage origin intentionally follows the `ld-decode`/`vhs-decode` TBC line convention and **differs from the digital line structure of the 4fsc interface standards** (SMPTE 244M-2003 and EBU Tech. 3280-E), in which the digital line begins with the digital active line and 0H falls late in the digital line — between samples 784 and 785 for NTSC, and midway between samples 957 and 958 on broadcast frame line 1 of PAL frame 1. Informational blocks in this document that quote sample numbers from those standards use the source standard's digital-line coordinates unless explicitly restated in stored coordinates.
+This storage origin intentionally follows the line convention of `ld-decode`/`vhs-decode` time-base corrected (TBC) output and **differs from the digital line structure of the 4fsc interface standards** (SMPTE 244M-2003 and EBU Tech. 3280-E), in which the digital line begins with the digital active line and 0H falls late in the digital line — between samples 784 and 785 for NTSC, and midway between samples 957 and 958 on broadcast frame line 1 of PAL frame 1. Informational blocks in this document that quote sample numbers from those standards use the source standard's digital-line coordinates unless explicitly restated in stored coordinates.
 
 ---
 
