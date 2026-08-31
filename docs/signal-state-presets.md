@@ -2,7 +2,7 @@
 
 This document is part of the [CVBS File Format Specification](index.md). It contains the normative Signal State Preset definitions referenced in the [Signal State Presets](index.md#signal-state-presets) section of that specification.
 
-**Naming convention:** Signal State Preset names follow the pattern `<RATE>_<TIMING>_<LOCK>`, where `<RATE>` is `STANDARD` (4×fsc) or `NONSTANDARD`, `<TIMING>` is `TBC` (time-base stable) or `RAW`, and `<LOCK>` is `LOCKED` or `UNLOCKED`. The `TBC` token is retained for continuity with existing tooling; it denotes a signal that **requires no time-base correction**, not a signal to which a time-base corrector was necessarily applied (see [Time-base stable](#time-base-stable) below). The `RAW` state implies unlocked (without stable line timing, subcarrier phase cannot be computed from sample position), so `<RATE>_RAW` presets do not include a `_LOCKED` / `_UNLOCKED` suffix.
+**Naming convention:** Signal State Preset names follow the pattern `<RATE>_<TIMING>_<LOCK>`, where `<RATE>` is `STANDARD` (4×fsc) or `NONSTANDARD`, `<TIMING>` is `STABLE` (time-base stable) or `RAW`, and `<LOCK>` is `LOCKED` or `UNLOCKED`. The `STABLE` token denotes a signal that **requires no time-base correction**, whether or not a time-base corrector was ever applied (see [Time-base stable](#time-base-stable) below). The `RAW` state implies unlocked (without stable line timing, subcarrier phase cannot be computed from sample position), so `<RATE>_RAW` presets do not include a `_LOCKED` / `_UNLOCKED` suffix.
 
 A Signal State Preset captures three independent axes of the signal's **sampling and processing state**. All three are properties of the capture and processing chain: they are decided before or during storage and hold uniformly for the entire file.
 
@@ -62,7 +62,7 @@ The preset governs several aspects of format interpretation:
 
 ---
 
-## Preset: `STANDARD_TBC_LOCKED`
+## Preset: `STANDARD_STABLE_LOCKED`
 
 | Property | Value |
 |---|---|
@@ -80,7 +80,7 @@ The preset governs several aspects of format interpretation:
 
 ---
 
-## Preset: `STANDARD_TBC_UNLOCKED`
+## Preset: `STANDARD_STABLE_UNLOCKED`
 
 | Property | Value |
 |---|---|
@@ -116,7 +116,7 @@ The preset governs several aspects of format interpretation:
 
 ---
 
-## Preset: `NONSTANDARD_TBC_LOCKED`
+## Preset: `NONSTANDARD_STABLE_LOCKED`
 
 | Property | Value |
 |---|---|
@@ -134,7 +134,7 @@ The preset governs several aspects of format interpretation:
 
 ---
 
-## Preset: `NONSTANDARD_TBC_UNLOCKED`
+## Preset: `NONSTANDARD_STABLE_UNLOCKED`
 
 | Property | Value |
 |---|---|
@@ -176,7 +176,7 @@ This section defines the mapping between the v1.5.0 Signal State Preset definiti
 
 ### Summary of changes
 
-1. **"TBC applied" axis redefined as "time-base stable".** The axis is now defined by observable properties of the stored signal (fixed samples per line, 0H-referenced fields) rather than by whether a time-base corrector was applied. Synthetic, test-pattern, and digitally captured sources that never required correction are now explicitly covered. The `TBC` token in preset names is retained and now reads "requires no time-base correction".
+1. **"TBC applied" axis redefined as "time-base stable", and the `TBC` preset-name token renamed to `STABLE`.** The axis is now defined by observable properties of the stored signal (fixed samples per line, 0H-referenced fields) rather than by whether a time-base corrector was applied. Synthetic, test-pattern, and digitally captured sources that never required correction are now explicitly covered. The new token reads "requires no time-base correction".
 2. **"Burst locked" axis redefined as "phase locked".** The axis now asserts only that subcarrier phase is computable from sample position within a field. It no longer implies — and must no longer be used to signal — phase or sequence continuity between fields.
 3. **Continuity moved out of the preset.** Whether the stored sequence is free of breaks is now declared by the new [`sequence_continuous`](index.md#sequence_continuous) field of the `cvbs_file` metadata table. This resolves the previously unrepresentable case of a fully phase-locked file containing a source discontinuity (for example a LaserDisc skip), which producers were forced to declare as `UNLOCKED` under v1.5.0 semantics.
 4. **Metadata schema version incremented.** The SQLite `PRAGMA user_version` is incremented from **10** (v1.5.0) to **11** (v1.6.0) to reflect the addition of the `sequence_continuous` column.
@@ -184,7 +184,18 @@ This section defines the mapping between the v1.5.0 Signal State Preset definiti
 
 ### Preset name mapping
 
-Preset **names are unchanged**; the six v1.5.0 names remain the six v1.6.0 names. Only the axis definitions behind them have changed as described above.
+The `TBC` token is renamed to `STABLE`; the `RATE` and `LOCK` tokens and the two `RAW` preset names are unchanged:
+
+| v1.5.0 preset name | v1.6.0 preset name |
+|---|---|
+| `STANDARD_TBC_LOCKED` | `STANDARD_STABLE_LOCKED` |
+| `STANDARD_TBC_UNLOCKED` | `STANDARD_STABLE_UNLOCKED` |
+| `STANDARD_RAW` | `STANDARD_RAW` |
+| `NONSTANDARD_TBC_LOCKED` | `NONSTANDARD_STABLE_LOCKED` |
+| `NONSTANDARD_TBC_UNLOCKED` | `NONSTANDARD_STABLE_UNLOCKED` |
+| `NONSTANDARD_RAW` | `NONSTANDARD_RAW` |
+
+A v1.5.0 preset name must not appear in a v1.6.0 (`user_version = 11`) database, and vice versa; the `signal_state_preset` CHECK constraint in the [metadata schema](index.md#sqlite-metadata-schema) admits only the v1.6.0 names.
 
 ### Metadata mapping
 
@@ -192,11 +203,11 @@ When migrating a v1.5.0 metadata database (`user_version = 10`) to v1.6.0 (`user
 
 | v1.5.0 `signal_state_preset` | v1.6.0 `signal_state_preset` | v1.6.0 `sequence_continuous` |
 |---|---|---|
-| `STANDARD_TBC_LOCKED` | `STANDARD_TBC_LOCKED` | `TRUE` |
-| `STANDARD_TBC_UNLOCKED` | `STANDARD_TBC_UNLOCKED` — or `STANDARD_TBC_LOCKED` after re-analysis (see below) | `NULL` (unknown) unless re-analysed |
+| `STANDARD_TBC_LOCKED` | `STANDARD_STABLE_LOCKED` | `TRUE` |
+| `STANDARD_TBC_UNLOCKED` | `STANDARD_STABLE_UNLOCKED` — or `STANDARD_STABLE_LOCKED` after re-analysis (see below) | `NULL` (unknown) unless re-analysed |
 | `STANDARD_RAW` | `STANDARD_RAW` | `NULL` unless known from the capture process |
-| `NONSTANDARD_TBC_LOCKED` | `NONSTANDARD_TBC_LOCKED` | `TRUE` |
-| `NONSTANDARD_TBC_UNLOCKED` | `NONSTANDARD_TBC_UNLOCKED` — or `NONSTANDARD_TBC_LOCKED` after re-analysis (see below) | `NULL` (unknown) unless re-analysed |
+| `NONSTANDARD_TBC_LOCKED` | `NONSTANDARD_STABLE_LOCKED` | `TRUE` |
+| `NONSTANDARD_TBC_UNLOCKED` | `NONSTANDARD_STABLE_UNLOCKED` — or `NONSTANDARD_STABLE_LOCKED` after re-analysis (see below) | `NULL` (unknown) unless re-analysed |
 | `NONSTANDARD_RAW` | `NONSTANDARD_RAW` | `NULL` unless known from the capture process |
 
 **Rationale:** Under v1.5.0 semantics (as implemented by `ld-decode`), a `LOCKED` preset asserted that subcarrier phase was continuous across the whole file — which is the v1.6.0 combination of phase locked **and** `sequence_continuous = TRUE`. A v1.5.0 `UNLOCKED` preset conflated two distinct cases: a signal that was genuinely not phase locked, and a signal that was phase locked but contained one or more discontinuities. These two cases cannot be distinguished from the v1.5.0 metadata alone, so a mechanical migration must map `UNLOCKED` to `UNLOCKED` with `sequence_continuous = NULL`. A producer that re-analyses the signal and finds each contiguous run to be phase locked may instead reclassify the file as `LOCKED` with `sequence_continuous = FALSE`.

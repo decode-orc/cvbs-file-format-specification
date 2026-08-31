@@ -120,11 +120,11 @@ CREATE TABLE cvbs_file (
         CHECK (sample_encoding_preset IN ('CVBS_U10_4FSC', 'CVBS_U16_4FSC', 'RAW_S16_28M', 'RAW_S16_40M', 'CVBS_TPG21_4FSC', 'CVBS_S16_4FSC')),
     signal_state_preset         TEXT    NOT NULL
         CHECK (signal_state_preset IN (
-            'STANDARD_TBC_LOCKED',
-            'STANDARD_TBC_UNLOCKED',
+            'STANDARD_STABLE_LOCKED',
+            'STANDARD_STABLE_UNLOCKED',
             'STANDARD_RAW',
-            'NONSTANDARD_TBC_LOCKED',
-            'NONSTANDARD_TBC_UNLOCKED',
+            'NONSTANDARD_STABLE_LOCKED',
+            'NONSTANDARD_STABLE_UNLOCKED',
             'NONSTANDARD_RAW'
         )),
     sequence_continuous         BOOLEAN,

@@ -90,7 +90,7 @@ PAL is a **625-line, 25 frames/s** system. The Sc/H relationship repeats every *
 > - frame line 623 sample 382 to frame line 5 sample 947 (inclusive, wrapping across the frame boundary).
 > - frame line 310 sample 948 to frame line 317 sample 947 (inclusive).
 
-**Exact frame size** (normative when the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate — i.e., `STANDARD_TBC_LOCKED` or `STANDARD_TBC_UNLOCKED`; when either condition does not hold, this value is not normative):
+**Exact frame size** (normative when the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate — i.e., `STANDARD_STABLE_LOCKED` or `STANDARD_STABLE_UNLOCKED`; when either condition does not hold, this value is not normative):
 
 | Frames/sample count | Samples | Bytes |
 | ------------------- | ------- | ----- |
@@ -165,7 +165,7 @@ NTSC is a **525-line, 30000/1001 frames/s** system. The SC/H relationship repeat
 > - frame line 525 sample 768 to frame line 9 sample 767 (inclusive, wrapping across the frame boundary).
 > - frame line 263 sample 313 to frame line 272 sample 767 (inclusive).
 
-**Exact frame size** (normative when the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate — i.e., `STANDARD_TBC_LOCKED` or `STANDARD_TBC_UNLOCKED`; when either condition does not hold, this value is not normative):
+**Exact frame size** (normative when the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate — i.e., `STANDARD_STABLE_LOCKED` or `STANDARD_STABLE_UNLOCKED`; when either condition does not hold, this value is not normative):
 
 | Frames/sample count | Samples | Bytes |
 | ------------------- | ------- | ----- |
@@ -234,7 +234,7 @@ PAL-M uses 525-line/60 Hz timing with PAL colour subcarrier modulation, as descr
 
 PAL-M is a **525-line, 30000/1001 frames/s** system. The SC/H relationship repeats every **4 frames**.
 
-**Exact frame size** (normative when the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate — i.e., `STANDARD_TBC_LOCKED` or `STANDARD_TBC_UNLOCKED`; when either condition does not hold, this value is not normative):
+**Exact frame size** (normative when the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate — i.e., `STANDARD_STABLE_LOCKED` or `STANDARD_STABLE_UNLOCKED`; when either condition does not hold, this value is not normative):
 
 | Frames/sample count | Samples | Bytes |
 | ------------------- | ------- | ----- |
@@ -263,7 +263,7 @@ Video Standard Presets are frame-described. Frames are stored sequentially in fi
 
 **Frame boundary and length integrity (normative):**
 
-When the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate (`STANDARD_TBC_LOCKED` or `STANDARD_TBC_UNLOCKED`), producers shall preserve frame boundaries and exact frame sample counts throughout the stream: every stored field and frame shall be complete and exact-sized, regardless of whether the content contains sequence discontinuities.
+When the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate (`STANDARD_STABLE_LOCKED` or `STANDARD_STABLE_UNLOCKED`), producers shall preserve frame boundaries and exact frame sample counts throughout the stream: every stored field and frame shall be complete and exact-sized, regardless of whether the content contains sequence discontinuities.
 
 For these presets, the exact frame sample counts are:
 - **PAL:** 709,379 samples/frame
