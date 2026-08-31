@@ -28,7 +28,7 @@ Stored frames are **0H-aligned**. The horizontal timing reference **0H** is the 
 - **Vertical origin:** stored frame line 0 corresponds to frame line 1 of the 1-based broadcast frame line convention — the first line of field 1.
 - The exact sub-sample position of 0H relative to sample 0 is a consequence of the preset's sampling phase and SC/H relationship; it is not additionally constrained by this specification.
 
-This storage origin intentionally follows the `ld-decode`/`vhs-decode` TBC line convention and **differs from the digital line structure of the 4fsc interface standards** (SMPTE 244M-2003 and EBU Tech. 3280-E), in which the digital line begins with the digital active line and 0H falls late in the digital line — between samples 784 and 785 for NTSC, and midway between samples 957 and 958 on broadcast frame line 1 of PAL frame 1. Informational blocks in this document that quote sample numbers from those standards use the source standard's digital-line coordinates unless explicitly restated in stored coordinates.
+This storage origin intentionally follows the line convention of `ld-decode`/`vhs-decode` `.tbc`-format output and **differs from the digital line structure of the 4fsc interface standards** (SMPTE 244M-2003 and EBU Tech. 3280-E), in which the digital line begins with the digital active line and 0H falls late in the digital line — between samples 784 and 785 for NTSC, and midway between samples 957 and 958 on broadcast frame line 1 of PAL frame 1. Informational blocks in this document that quote sample numbers from those standards use the source standard's digital-line coordinates unless explicitly restated in stored coordinates.
 
 ---
 
@@ -90,7 +90,7 @@ PAL is a **625-line, 25 frames/s** system. The Sc/H relationship repeats every *
 > - frame line 623 sample 382 to frame line 5 sample 947 (inclusive, wrapping across the frame boundary).
 > - frame line 310 sample 948 to frame line 317 sample 947 (inclusive).
 
-**Exact frame size** (normative when the Signal State Preset has `tbc_applied = TRUE` at the standard 4×fsc sample rate; when either condition does not hold, this value is not normative):
+**Exact frame size** (normative when the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate — i.e., `STANDARD_STABLE_LOCKED` or `STANDARD_STABLE_UNLOCKED`; when either condition does not hold, this value is not normative):
 
 | Frames/sample count | Samples | Bytes |
 | ------------------- | ------- | ----- |
@@ -106,7 +106,7 @@ The PAL colour sequence cycles over **4 frames** and then repeats.
 
 > *(Informational — EBU Tech. 3280-E §1.1.1 and Fig. 1):* At 0° Sc/H (the normative PAL sampling phase), the +U axis of the subcarrier is at zero phase relative to the horizontal timing reference point (0H) at the start of frame 1 in the PAL sequence. The colour burst phase rotates through the standard PAL progression across the 4-frame cycle. Any break in the expected Sc/H phase progression between consecutive stored frames indicates a discontinuity in the PAL sequence.
 
-> *(Informational — ld-decode/vhs-decode convention):* PAL TBC output from `ld-decode` conventionally starts at the midpoint of frame 1 in the EBU PAL sequence rather than at its first line. Consumers that care about exact PAL sequence origin should account for that half-frame offset.
+> *(Informational — ld-decode/vhs-decode convention):* PAL `.tbc`-format output from `ld-decode` conventionally starts at the midpoint of frame 1 in the EBU PAL sequence rather than at its first line. Consumers that care about exact PAL sequence origin should account for that half-frame offset.
 
 ---
 
@@ -165,7 +165,7 @@ NTSC is a **525-line, 30000/1001 frames/s** system. The SC/H relationship repeat
 > - frame line 525 sample 768 to frame line 9 sample 767 (inclusive, wrapping across the frame boundary).
 > - frame line 263 sample 313 to frame line 272 sample 767 (inclusive).
 
-**Exact frame size** (normative when the Signal State Preset has `tbc_applied = TRUE` at the standard 4×fsc sample rate; when either condition does not hold, this value is not normative):
+**Exact frame size** (normative when the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate — i.e., `STANDARD_STABLE_LOCKED` or `STANDARD_STABLE_UNLOCKED`; when either condition does not hold, this value is not normative):
 
 | Frames/sample count | Samples | Bytes |
 | ------------------- | ------- | ----- |
@@ -182,7 +182,7 @@ The NTSC colour sequence cycles over **2 frames**, conventionally labelled **A**
 
 > *(Informational — SMPTE 244M-2003 §3.2, §4.1.2):* At 0° SC/H (the normative NTSC sampling phase), sample 0 of frame line 10 in colour frame A is an I-axis (+123°) sample — in this specification's stored, 0H-aligned coordinates, **sample 125 of stored frame line 9** (0-based). Comparing the measured burst phase at that reference point against the expected value for colour frame **A** or **B** identifies position within the 2-frame sequence. A phase discontinuity between consecutive stored frames indicates a colour frame sequence break. *(SMPTE line and sample numbers use SMPTE 244M-2003's 1-indexed frame line convention and digital-line sample coordinates.)*
 
-> *(Informational — ld-decode/vhs-decode convention):* NTSC TBC output from `ld-decode` conventionally starts with colour frame **A**.
+> *(Informational — ld-decode/vhs-decode convention):* NTSC `.tbc`-format output from `ld-decode` conventionally starts with colour frame **A**.
 
 ---
 
@@ -234,7 +234,7 @@ PAL-M uses 525-line/60 Hz timing with PAL colour subcarrier modulation, as descr
 
 PAL-M is a **525-line, 30000/1001 frames/s** system. The SC/H relationship repeats every **4 frames**.
 
-**Exact frame size** (normative when the Signal State Preset has `tbc_applied = TRUE` at the standard 4×fsc sample rate; when either condition does not hold, this value is not normative):
+**Exact frame size** (normative when the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate — i.e., `STANDARD_STABLE_LOCKED` or `STANDARD_STABLE_UNLOCKED`; when either condition does not hold, this value is not normative):
 
 | Frames/sample count | Samples | Bytes |
 | ------------------- | ------- | ----- |
@@ -263,14 +263,18 @@ Video Standard Presets are frame-described. Frames are stored sequentially in fi
 
 **Frame boundary and length integrity (normative):**
 
-When a Signal State Preset requires locked timing at the standard 4x fsc sample rate (for example `tbc_applied = TRUE` and burst/colour lock sufficient to preserve sequence continuity), producers shall preserve frame boundaries and exact frame sample counts throughout the stream. For affected presets, each stored frame shall preserve the correct preset-specific frame progression, with no skipped frames, duplicated frames, or boundary shifts that would alter sequence alignment.
+When the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate (`STANDARD_STABLE_LOCKED` or `STANDARD_STABLE_UNLOCKED`), producers shall preserve frame boundaries and exact frame sample counts throughout the stream: every stored field and frame shall be complete and exact-sized, regardless of whether the content contains sequence discontinuities.
 
 For these presets, the exact frame sample counts are:
 - **PAL:** 709,379 samples/frame
 - **NTSC:** 477,750 samples/frame
 - **PAL_M:** 477,225 samples/frame
 
-If a producer cannot guarantee this lock (for example because source skips, repeated source frames, dropouts in timing recovery, or other instability prevent reliable frame-to-frame sequence continuity), that producer shall not claim the corresponding locked preset constraints as normative for that content.
+**Sequence progression integrity (normative):**
+
+When the [`sequence_continuous`](index.md#sequence_continuous) metadata field is `TRUE`, each stored frame shall preserve the correct preset-specific frame progression, with no skipped frames, duplicated frames, or boundary shifts that would alter sequence alignment, across the entire file.
+
+If a producer cannot guarantee this continuity (for example because source skips, repeated source frames, dropouts in timing recovery, or capture pauses prevent reliable frame-to-frame sequence continuity), the producer shall declare `sequence_continuous = FALSE` (or `NULL` if unknown) rather than downgrading the Signal State Preset; each contiguous run of frames between discontinuities shall still honour the declared presets in full.
 
 ---
 

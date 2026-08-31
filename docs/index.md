@@ -10,7 +10,7 @@ The format is organised around three independent **preset systems**, each of whi
 
 - [**Video Standard Presets**](#video-standard-presets): define the timing and structural parameters of the video signal — line counts, field rates, horizontal sample structure, colour field sequence, and the normative sample level tables for standards-compliant signals.
 - [**Sample Encoding Presets**](#sample-encoding-presets): define the bit depth, word format, and amplitude mapping used when the sample data was recorded.
-- [**Signal State Presets**](#signal-state-presets): define the processing state of the signal at the time of storage — whether a standard 4×fsc sample rate was used, whether time-base correction (TBC) was applied, and whether the decoder was phase-locked to the colour burst.
+- [**Signal State Presets**](#signal-state-presets): define the sampling and processing state of the signal at the time of storage — whether a standard 4×fsc sample rate was used, whether the signal is time-base stable, and whether the sampling is phase-locked to the colour subcarrier.
 
 Every CVBS file is described by one preset from each system. Together they specify how to interpret sample amplitudes, when normative field sizing rules apply, and how reliable phase and level measurements are expected to be.
 
@@ -65,6 +65,8 @@ The horizontal and vertical origin of each stored frame — 0H-aligned lines, wi
 
 Frames are stored sequentially in the file with no embedded markers identifying the colour field sequence position or validating correct sequential ordering. In this specification, ordering has two independent dimensions: (1) ordering of frames relative to other frames, and (2) ordering of the two fields inside each frame. **No guarantee exists that either dimension is correct.** A frame may contain the expected pair of fields but with intra-frame field order reversed. Due to the nature of RF capture and physical media characteristics — including disc jumps, scratches, media pauses, physical defects, and frame dropouts — the producer may have no reliable way to verify that captured frame and field ordering maintain proper sequential continuity.
 
+When present, the [`sequence_continuous`](#sequence_continuous) metadata field declares whether the producer asserts that the stored content is one unbroken sequence; when it is `TRUE`, consumers may rely on sequential continuity without verification.
+
 If frame-level reordering, field-level analysis, phase verification, or dropout detection is required, those concerns are the responsibility of the consumer application. The file format itself operates at the frame level as the smallest unit of storage and navigation; field-level manipulation and validation are outside the scope of the format specification.
 
 ---
@@ -87,7 +89,7 @@ Certain captures may contain sample values that fall outside the nominal standar
 
 ### Field Ordering and Phase Verification
 
-Because frames consist of sequential field pairs and frame ordering is not guaranteed, consumers performing field-level analysis must validate field sequence position, field order, and phase continuity against the declared preset. They may optionally reorder fields and/or frames to establish continuity.
+Because frames consist of sequential field pairs and frame ordering is not guaranteed, consumers performing field-level analysis must validate field sequence position, field order, and phase continuity against the declared preset. They may optionally reorder fields and/or frames to establish continuity. The [`sequence_continuous`](#sequence_continuous) metadata field, when present, declares whether the producer asserts continuity across the whole file.
 
 **Note:** The choice to perform these validations and reorderings is entirely optional and application-dependent. The file format itself makes no assertions about frame ordering correctness.
 
@@ -108,7 +110,7 @@ The metadata file is a **SQLite database** containing the core metadata table de
 ### SQLite Metadata Schema
 
 ```sql
-PRAGMA user_version = 10;
+PRAGMA user_version = 11;
 
 CREATE TABLE cvbs_file (
     cvbs_file_id                INTEGER PRIMARY KEY,
@@ -118,13 +120,14 @@ CREATE TABLE cvbs_file (
         CHECK (sample_encoding_preset IN ('CVBS_U10_4FSC', 'CVBS_U16_4FSC', 'RAW_S16_28M', 'RAW_S16_40M', 'CVBS_TPG21_4FSC', 'CVBS_S16_4FSC')),
     signal_state_preset         TEXT    NOT NULL
         CHECK (signal_state_preset IN (
-            'STANDARD_TBC_LOCKED',
-            'STANDARD_TBC_UNLOCKED',
+            'STANDARD_STABLE_LOCKED',
+            'STANDARD_STABLE_UNLOCKED',
             'STANDARD_RAW',
-            'NONSTANDARD_TBC_LOCKED',
-            'NONSTANDARD_TBC_UNLOCKED',
+            'NONSTANDARD_STABLE_LOCKED',
+            'NONSTANDARD_STABLE_UNLOCKED',
             'NONSTANDARD_RAW'
         )),
+    sequence_continuous         BOOLEAN,
     signal_type                 TEXT    NOT NULL
         CHECK (signal_type IN ('composite', 'yc')),
     decoder                     TEXT    NOT NULL,
@@ -173,7 +176,13 @@ The `cvbs_file` table records file-level metadata. There is one row per CVBS fil
 - **Type:** TEXT
 - **Nullable:** No
 - **Range:** Any Signal State Preset name defined in [signal-state-presets](signal-state-presets.md)
-- **Description:** Identifies the Signal State Preset that describes the processing state of the signal at the time of storage — whether the sample rate is standard 4×fsc, whether TBC was applied, and whether burst locking was applied.
+- **Description:** Identifies the Signal State Preset that describes the sampling and processing state of the signal at the time of storage — whether the sample rate is standard 4×fsc, whether the signal is time-base stable, and whether the sampling is phase-locked to the colour subcarrier. The preset describes the capture/processing chain only; continuity of the stored content is declared separately by [`sequence_continuous`](#sequence_continuous).
+
+#### `sequence_continuous`
+
+- **Type:** BOOLEAN
+- **Nullable:** Yes
+- **Description:** Declares whether the stored content is a single unbroken sequence. When `TRUE`, the producer asserts that: (1) the stored samples represent one temporally gapless capture, with no missing, repeated, or reordered lines, fields, or frames anywhere in the file; (2) when the declared Signal State Preset is time-base stable, the field/frame sequence advances by exactly one position per stored frame; and (3) when the declared Signal State Preset is phase-locked, the colour field sequence position and subcarrier phase progress according to the declared Video Standard Preset across every frame boundary. When `FALSE`, at least one discontinuity exists (for example a disc skip or capture pause); each contiguous run of frames between discontinuities still honours the declared presets in full, and consumers must re-establish colour sequence position after each discontinuity. `NULL` means continuity is unknown or was not assessed; consumers must not assume continuity. This field is independent of the Signal State Preset: a discontinuity does not affect the preset's structural guarantees (when the preset is time-base stable, every stored field and frame remains complete and exact-sized regardless of this flag), and producers must not downgrade the preset to signal a discontinuity. Locating individual discontinuities is the domain of producer extension metadata (see [Producer Extension Metadata](#producer-extension-metadata)).
 
 #### `signal_type`
 
@@ -268,7 +277,7 @@ Full definitions: [sample-encoding-presets](sample-encoding-presets.md)
 
 ## Signal State Presets
 
-A **Signal State Preset** defines the processing state of the signal at the time of storage along three independent axes: sample rate (standard 4×fsc vs. non-standard), TBC applied (yes vs. no), and burst locked (yes vs. no). The combination governs whether normative sample-count constraints apply, whether signal level compliance is required, and whether phase continuity can be assumed. The preset name is stored in the `signal_state_preset` field of the `cvbs_file` metadata table (see the [`cvbs_file` table](#cvbs_file-table)).
+A **Signal State Preset** defines the sampling and processing state of the signal at the time of storage along three independent axes: sample rate (standard 4×fsc vs. non-standard), time-base stable (yes vs. no), and phase locked (yes vs. no). The combination governs whether normative sample-count constraints apply, whether signal level compliance is required, and whether the content is sampled at the standard subcarrier-reference-locked phase points. The preset name is stored in the `signal_state_preset` field of the `cvbs_file` metadata table (see the [`cvbs_file` table](#cvbs_file-table)). Continuity of the stored content — whether the sequence is free of breaks such as disc skips — is not a preset axis; it is declared by the [`sequence_continuous`](#sequence_continuous) metadata field.
 
 Full definitions: [signal-state-presets](signal-state-presets.md)
 
