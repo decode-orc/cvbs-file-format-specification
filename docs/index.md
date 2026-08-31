@@ -277,7 +277,7 @@ Full definitions: [sample-encoding-presets](sample-encoding-presets.md)
 
 ## Signal State Presets
 
-A **Signal State Preset** defines the sampling and processing state of the signal at the time of storage along three independent axes: sample rate (standard 4×fsc vs. non-standard), time-base stable (yes vs. no), and phase locked (yes vs. no). The combination governs whether normative sample-count constraints apply, whether signal level compliance is required, and whether subcarrier phase can be computed from sample position. The preset name is stored in the `signal_state_preset` field of the `cvbs_file` metadata table (see the [`cvbs_file` table](#cvbs_file-table)). Continuity of the stored content — whether the sequence is free of breaks such as disc skips — is not a preset axis; it is declared by the [`sequence_continuous`](#sequence_continuous) metadata field.
+A **Signal State Preset** defines the sampling and processing state of the signal at the time of storage along three independent axes: sample rate (standard 4×fsc vs. non-standard), time-base stable (yes vs. no), and phase locked (yes vs. no). The combination governs whether normative sample-count constraints apply, whether signal level compliance is required, and whether the content is sampled at the standard subcarrier-reference-locked phase points. The preset name is stored in the `signal_state_preset` field of the `cvbs_file` metadata table (see the [`cvbs_file` table](#cvbs_file-table)). Continuity of the stored content — whether the sequence is free of breaks such as disc skips — is not a preset axis; it is declared by the [`sequence_continuous`](#sequence_continuous) metadata field.
 
 Full definitions: [signal-state-presets](signal-state-presets.md)
 

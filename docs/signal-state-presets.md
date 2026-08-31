@@ -10,7 +10,7 @@ A Signal State Preset captures three independent axes of the signal's **sampling
 |---|---|---|
 | Sample rate | Exactly 4×fsc for the declared Video Standard Preset | Non-standard (e.g., oversampled at 28.6 MHz or 40 MHz, or line-locked 13.5 MHz) |
 | Time-base stable | Yes — fixed, known sample count per line; 0H-referenced fields | No — line lengths vary, timing is raw |
-| Phase locked | Yes — subcarrier phase is computable from sample position | No — subcarrier phase drifts or is unknown |
+| Phase locked | Yes — content is sampled at standard subcarrier-reference-locked phase points | No — content is not sampled at standard subcarrier-reference-locked phase points |
 
 These axes are independent, with one implication: phase locked requires time-base stable (and therefore `RAW` implies unlocked). In particular, a file can be time-base stable but not phase locked (e.g., standard NTSC `.tbc` output from `ld-decode` or `vhs-decode`: timing is corrected but the subcarrier phase at each field is not anchored to a canonical 0° reference), and a file at a non-standard sample rate can still be time-base stable (oversampled TBC output).
 
@@ -33,7 +33,7 @@ In the digital domain, time-base stability is what line-locked sampling provides
 
 ### Phase locked
 
-A signal is **phase locked** when the subcarrier phase of any sample is deterministically computable from that sample's (field, line, sample) coordinates together with the field's position within the declared colour field sequence, according to the declared Video Standard Preset (see the Sc/H conventions in [video-standard-presets](video-standard-presets.md)).
+A signal is **phase locked** when the content is sampled at the standard subcarrier-reference-locked phase points defined by the declared Video Standard Preset's Sc/H convention (see [video-standard-presets](video-standard-presets.md)). Equivalently, the subcarrier phase of any sample is deterministically computable from that sample's (field, line, sample) coordinates together with the field's position within the declared colour field sequence.
 
 Notes:
 
