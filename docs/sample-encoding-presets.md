@@ -81,7 +81,7 @@ Any integer-domain translation applied by the producer to `CVBS_U16_4FSC` sample
 
 **Signal level compliance:** Signal level compliance is not meaningful for this preset.
 
-**TBC and burst locking:** Files using this preset will normally have the Signal State Preset `NONSTANDARD_RAW`.
+**Time-base and phase locking:** Files using this preset will normally have the Signal State Preset `NONSTANDARD_RAW`.
 
 ---
 
