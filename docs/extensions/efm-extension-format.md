@@ -8,7 +8,7 @@ The format is an extension to the core [CVBS File Format Specification](../index
 
 ## Purpose and Scope
 
-EFM t-value data represents the raw channel t-values extracted from an EFM-encoded signal embedded within or accompanying a CVBS capture. T-values are unsigned byte values in the range 0–255, typically representing modulation intervals (conventionally T3 to T11, values 3 to 11).
+EFM t-value data represents the raw channel t-values extracted from an EFM-encoded signal embedded within or accompanying a CVBS capture, together with the producer's per-t-value confidence. Each byte carries one t-value (conventionally T3 to T11, values 3 to 11) and a 4-bit doubt field (see *Binary Data File*).
 
 The number of t-values per frame is variable and not predictable from the video standard or sample rate alone. This extension therefore uses two files: a binary data file containing the t-value byte stream and a SQLite sidecar providing the per-frame index into that stream.
 
@@ -45,12 +45,43 @@ If no core metadata file exists, producers must set `cvbs_file_id = 1` and treat
 
 ## Binary Data File
 
-The `<basename>.efm` file is a flat binary stream of unsigned 8-bit t-values.
+The `<basename>.efm` file is a flat binary stream of unsigned 8-bit values,
+one byte per t-value.
 
-- Each byte represents one t-value in the range 0–255.
 - T-values from successive frames are concatenated in ascending `frame_id` order with no padding or alignment between frames.
 - There is no file header.
 - The total number of bytes in the file must equal the sum of all `t_value_count` values across all rows in `<basename>.efm.meta` for the associated capture.
+
+Each byte carries one t-value and the producer's doubt about it:
+
+```
+bit  7 6 5 4   3 2 1 0
+      doubt     t-value
+```
+
+- **t-value** (bits 3–0): the modulation interval. Conventional t-values
+  T3–T11 (3 to 11) fit the field exactly; t-values must be in the range
+  0–15.
+- **doubt** (bits 7–4): the producer's distrust of this t-value, 0
+  meaning fully trusted and 15 meaning positively distrusted (a
+  downstream error-correction erasure candidate). Intermediate values are
+  ordinal: a larger value means no more trust than a smaller one.
+  Producers are not required to use the full range; a producer with no
+  per-value confidence information must emit zero doubt throughout.
+
+The doubt (rather than confidence) sense of the upper nibble is
+deliberate: a fully trusted t-value packs to its plain value, so a
+stream from a producer with nothing to doubt is simply the sequence of
+raw t-value bytes.
+
+Consumers recover the fields as `t = byte & 0x0F` and
+`doubt = byte >> 4` (equivalently `confidence = 15 - (byte >> 4)`). A
+confidence expressed on a wider internal scale maps in by inverting and
+truncating to its 4 most significant bits, and back out by scaling (for
+example `(15 - doubt) * 17` restores a 0–255 confidence range with zero
+doubt mapping to 255).
+
+`t_value_offset` and `t_value_count` count one byte per t-value.
 
 ---
 
@@ -131,7 +162,7 @@ Each row defines the location and length of one frame's t-value data within the 
 3. If `<basename>.efm.meta` is present but `<basename>.efm` is absent, consumers must treat the extension as absent.
 4. Consumers must ignore unknown columns added by future extension revisions.
 5. Consumers should ignore rows whose `frame_id` falls outside known capture bounds when those bounds are known.
-6. Consumers must not interpret the 0–255 byte value range as implying any constraint on valid t-values; all byte values are permitted.
+6. Consumers must not reject a stream on the basis of its byte values; all byte values are permitted (any doubt combined with any 4-bit t-value). Consumers that require conventional t-values (T3–T11) must apply that constraint to the extracted t-value field, not to the raw byte.
 
 ---
 
