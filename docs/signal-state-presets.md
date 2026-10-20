@@ -18,7 +18,7 @@ These axes are independent, with one implication: phase locked requires time-bas
 
 ### Sample rate
 
-The sample rate is `STANDARD` when it is exactly 4×fsc for the declared Video Standard Preset, and `NONSTANDARD` otherwise. Non-standard rates include oversampled captures (e.g., 28.6 MHz, 40 MHz) and line-locked component-style rates (e.g., 13.5 MHz).
+The sample rate is `STANDARD` when it is exactly 4×fsc for the declared Video Standard Preset, and `NONSTANDARD` otherwise. For a Video Standard Preset without a single colour subcarrier (`SECAM`), the standard rate is the one the preset defines (see [`SECAM`](video-standard-presets.md#preset-secam)). Non-standard rates include oversampled captures (e.g., 28.6 MHz, 40 MHz) and line-locked component-style rates (e.g., 13.5 MHz).
 
 ### Time-base stable
 
@@ -41,6 +41,7 @@ Notes:
 - Phase locked requires time-base stability; without a fixed sample-to-line relationship, phase cannot be computed from sample position.
 - Line-locked sampling that is not subcarrier-locked (for example 13.5 MHz component-style sampling of a composite signal) is time-base stable but **not** phase locked.
 - A signal with no usable subcarrier reference (for example monochrome material) cannot be phase locked and must be declared `UNLOCKED`.
+- A Video Standard Preset with frequency-modulated chrominance (`SECAM`) defines no Sc/H convention, so files declaring it cannot be phase locked and must be declared `UNLOCKED` or `RAW` (see [`SECAM`](video-standard-presets.md#preset-secam)).
 - For PAL, 4×fsc is not an integer multiple of the line frequency in the analogue domain, so a line-locked sampling *clock* cannot simultaneously be subcarrier-locked. The output of a *resampling* time-base correction process (for example `ld-decode`, which mathematically resamples the captured signal onto the ideal 4×fsc grid when producing its `.tbc`-format output), however, can satisfy both properties in the stored digital domain, because a resampler is not constrained by a single physical clock; the phase-locked assertion applies to the stored samples under the declared preset's Sc/H convention.
 
 ## Continuity is not a Preset Axis
@@ -195,7 +196,7 @@ The `TBC` token is renamed to `STABLE`; the `RATE` and `LOCK` tokens and the two
 | `NONSTANDARD_TBC_UNLOCKED` | `NONSTANDARD_STABLE_UNLOCKED` |
 | `NONSTANDARD_RAW` | `NONSTANDARD_RAW` |
 
-A v1.5.0 preset name must not appear in a v1.6.0 (`user_version = 11`) database, and vice versa; the `signal_state_preset` CHECK constraint in the [metadata schema](index.md#sqlite-metadata-schema) admits only the v1.6.0 names.
+A v1.5.0 preset name must not appear in a v1.6.0 or later (`user_version` ≥ 11) database, and vice versa; the `signal_state_preset` CHECK constraint in the [metadata schema](index.md#sqlite-metadata-schema) admits only the v1.6.0 names.
 
 ### Metadata mapping
 
@@ -215,5 +216,5 @@ When migrating a v1.5.0 metadata database (`user_version = 10`) to v1.6.0 (`user
 ### Consumer guidance
 
 - A database with `user_version = 10` must be interpreted under v1.5.0 semantics; consumers may apply the mapping table above to derive v1.6.0 semantics.
-- A database with `user_version = 11` must contain the `sequence_continuous` column and must be interpreted under the definitions in this document.
+- A database with `user_version` ≥ 11 must contain the `sequence_continuous` column and must be interpreted under the definitions in this document.
 - Producers writing v1.6.0 metadata must write `user_version = 11` and should populate `sequence_continuous` whenever the continuity of the content is known.

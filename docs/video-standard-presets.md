@@ -10,10 +10,11 @@ Examples:
 - `PAL` — the primary PAL standard
 - `NTSC` — the primary NTSC standard
 - `PAL_M` — a PAL-family variant using NTSC 525-line/60 Hz timing with PAL colour subcarrier modulation
+- `SECAM` — the primary 625-line SECAM standard
 
 **External standard references used by these presets:**
 
-- [ITU-R BT.1700-1 (2005)](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/BT-1700-E/BT-1700-E.md), *Characteristics of composite video signals for conventional analogue television systems* — defines conventional analogue composite PAL signal formats, including 625-line PAL and 525-line PAL used by PAL-M, and includes the approved SMPTE 170M-2004 NTSC text in Annex 2.
+- [ITU-R BT.1700-1 (2005)](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/BT-1700-E/BT-1700-E.md), *Characteristics of composite video signals for conventional analogue television systems* — defines conventional analogue composite PAL and SECAM signal formats, including 625-line PAL, 525-line PAL used by PAL-M, and 625-line SECAM, and includes the approved SMPTE 170M-2004 NTSC text in Annex 2.
 - [SMPTE 170M-2004](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-170M-2004/SMPTE-170M-2004.md), *Composite Analog Video Signal - NTSC for Studio Applications* — defines the analogue 525-line, 59.94-field NTSC studio composite signal.
 - [SMPTE 244M-2003](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/SMPTE-244M-2003/SMPTE-244M-2003.md), *Bit-Parallel Digital Interface for NTSC Composite Video Signals* — defines the 4fsc digital representation, sample phase, line structure, and 10-bit sample levels for NTSC composite video.
 - [EBU Tech. 3280-E](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/EBU-Tech-3280-E/EBU-Tech-3280-E.md), *Specification of interfaces for 625-line digital PAL signals* — defines the 625-line digital PAL composite interface, including 4fsc sample levels, sample phase, line structure, and PAL colour-frame relationship.
@@ -251,6 +252,80 @@ Despite using 525-line/60 Hz timing, PAL-M uses a **4-frame** colour sequence ra
 
 ---
 
+## Preset: `SECAM`
+
+**External standards:**
+
+- [ITU-R BT.1700-1 (2005)](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/BT-1700-E/BT-1700-E.md), Annex 1 Part C: analogue 625-line SECAM signal format used for line and field timing, chrominance sub-carrier frequencies and modulation, signal levels, and the D′R/D′B colour sequence.
+- [EBU Tech. 3280-E](https://github.com/decode-orc/analogue-video-specifications/blob/main/docs/video_formats/EBU-Tech-3280-E/EBU-Tech-3280-E.md): 625-line 4fsc digital composite coding reference used by this storage preset for the sampling structure and the 10-bit sample-value mapping. EBU Tech. 3280-E is a PAL standard; it is applied to SECAM by this specification only as a storage convention (see below).
+
+SECAM is a **625-line, 25 frames/s** system with the same line and field timing and the same signal levels as 625-line PAL. Its chrominance is carried by **frequency modulation** of two sub-carriers transmitted on alternate lines: D′R lines use fOR = 282 fH = **4,406,250 Hz** and D′B lines use fOB = 272 fH = **4,250,000 Hz** (ITU-R BT.1700 Part C Table 4, items 5–7).
+
+**Sampling rate:**
+
+SECAM has no single colour subcarrier and no 4fsc digital composite interface standard. This preset adopts the **PAL 4fsc rate** as its standard sampling rate, following the convention of `vhs-decode`, which processes SECAM through its 625-line PAL output path. Wherever this specification refers to "the standard 4×fsc sample rate" for the `SECAM` preset (for example in the [Signal State Presets](signal-state-presets.md)), it means this rate.
+
+| Formula | Frequency |
+|---------|-----------|
+| 4 × 625 × 25 × (1135/4 + 1/625) | **17,734,475 Hz** (exact; identical to the `PAL` preset) |
+
+**Sample level table (EBU Tech. 3280-E coding levels applied to ITU-R BT.1700 Part C Table 5) — applicable when Sample Encoding Preset is `CVBS_U10_4FSC` or `CVBS_U16_4FSC`:**
+
+| Level            | 10-bit Decimal | 10-bit Hex   | Notes                       |
+| ---------------- | -------------- | ------------ | --------------------------- |
+| Protected min    | 0–3            | 000h–003h    | Must never appear; reserved |
+| Sync tip         | 4              | 004h (01.0h) | Minimum legal sample value (−300 mV) |
+| Blanking         | 256            | 100h (40.0h) | Zero-signal reference (0 mV) |
+| Black            | 256            | 100h (40.0h) | No pedestal: black = blanking |
+| White (100%)     | 844            | 34Ch (D3.0h) | 100% white (700 mV)         |
+| Peak (w/ chroma) | 1019           | 3FBh         | Maximum legal sample value  |
+| Protected max    | 1020–1023      | 3FCh–3FFh    | Must never appear; reserved |
+
+> **Black level note:** ITU-R BT.1700 Part C Table 5 permits a set-up (difference between black and blanking level) of 0–49 mV. The preset default is no set-up (black = blanking = 256); sources with a non-zero set-up should signal this via the `black_level` metadata override.
+
+> *(Informational — ITU-R BT.1700 Part C Table 5):* The peak composite signal level is given as 1161 ± 17.5 mV measured from sync tip, i.e. approximately **861 mV above blanking**, which maps to approximately **979** in the 10-bit domain. Nominal SECAM peak chroma excursions therefore fall within the legal 10-bit range.
+
+**Horizontal line structure:**
+
+| Total samples/line       | Digital active samples | Digital blanking samples |
+| ------------------------ | ---------------------- | ------------------------ |
+| 1135.0064 (exact average) | 948 (nominal)         | 187.0064 (nominal)       |
+
+The SECAM storage lattice is identical to the [`PAL`](#preset-pal) 4fsc lattice: **1135.0064 sample periods per line**, exactly **709,379 samples per frame**, advancing by 4 samples per frame relative to an orthogonal line structure. The lattice is therefore **non-orthogonal** and repeats at frame rate.
+
+**Stored frame alignment (normative):** Stored SECAM frames are 0H-aligned as defined in [Stored Frame and Line Origin](#stored-frame-and-line-origin-normative): the first stored sample of each frame is the first sampling instant at or after 0H of broadcast frame line 1 (stored frame line 0). As for `PAL`, this origin is defined only at the frame level.
+
+**Subcarrier phase and phase locking (normative):** Because SECAM chrominance is frequency modulated, the sub-carrier phase during the active line depends on picture content and bears no fixed relationship to the sampling lattice. This preset therefore defines **no Sc/H convention** and no subcarrier-reference-locked sampling phase. Files declaring the `SECAM` preset shall declare a Signal State Preset that is not phase locked (`STANDARD_STABLE_UNLOCKED`, `STANDARD_RAW`, `NONSTANDARD_STABLE_UNLOCKED`, or `NONSTANDARD_RAW`); the `STANDARD_STABLE_LOCKED` and `NONSTANDARD_STABLE_LOCKED` presets shall not be used with `SECAM`.
+
+> *(Informational — ITU-R BT.1700 Part C Table 4, note 1):* The initial phase of the undeviated sub-carrier is inverted from frame to frame (0°, 180°, 0°, 180°, …) and from line to line in one of two patterns (0°, 0°, 180°, … or 0°, 0°, 0°, 180°, 180°, 180°, …) to reduce the visibility of the sub-carrier. This phase pattern is not used for colour sequence identification in this specification.
+
+**SECAM 2-frame sequence:**
+
+| Frame in sequence | Description |
+| ----------------- | ----------- |
+| 1                 | First frame of the SECAM colour sequence: odd broadcast frame lines (even stored frame lines) carry D′R |
+| 2                 | Second frame of the SECAM colour sequence: odd broadcast frame lines (even stored frame lines) carry D′B; the next frame repeats as frame 1 |
+
+D′R and D′B lines alternate continuously. Because a frame contains an odd number of lines (625), the colour-difference assignment of a given line number inverts from one frame to the next, so the SECAM colour sequence repeats every **2 frames** (4 fields). In this specification, SECAM sequence position is described only by the repeating frame numbers **1** and **2**.
+
+> *(Informational — ITU-R BT.1700 Part C Fig. 16 and Table 4 item 13):* Frame 1 of this specification corresponds to the first and second fields of the 4-field sequence in Fig. 16, in which broadcast frame line 7 carries D′R and line 8 carries D′B. *(Line numbers in this block use ITU-R BT.1700's 1-indexed frame line convention, counting sequentially across the full 625-line frame.)* The colour-difference identity of each line can be established either from the undeviated sub-carrier reference on the line-blanking back porch (the preferred line identification method) or, when present, from the field identification signals on lines 7–15 (fields 1 and 3) and 320–328 (fields 2 and 4).
+
+**Exact frame size** (normative when the declared Signal State Preset is time-base stable at the standard 4×fsc sample rate — i.e., `STANDARD_STABLE_UNLOCKED`; when either condition does not hold, this value is not normative):
+
+| Frames/sample count | Samples | Bytes |
+| ------------------- | ------- | ----- |
+| SECAM frame         | **709,379** | **1,418,758** |
+
+Bytes = samples × 2 (each sample is one 16-bit little-endian word).
+
+**Colour frame sequence:**
+
+The SECAM colour sequence cycles over **2 frames** and then repeats. Sequence position is verified by identifying whether a reference line carries D′R or D′B (see above), not by subcarrier phase measurement. A break in the expected D′R/D′B alternation between consecutive stored frames indicates a discontinuity in the SECAM sequence.
+
+> *(Informational — MESECAM):* MESECAM is a videotape recording method for SECAM signals, not a distinct baseband standard. Decoded MESECAM recordings produce a SECAM baseband signal and are stored using the `SECAM` preset.
+
+---
+
 ## Frame Ordering and Phase Verification
 
 Video Standard Presets are frame-described. Frames are stored sequentially in file order. Position within the colour frame sequence is not encoded in-band; consumers determine sequence position by measuring burst phase and checking that successive frames preserve the expected preset-specific progression.
@@ -258,6 +333,7 @@ Video Standard Presets are frame-described. Frames are stored sequentially in fi
 - **PAL:** verify against the 4-frame progression described in the PAL preset section above.
 - **NTSC:** verify against the 2-frame progression described in the NTSC preset section above.
 - **PAL_M:** verify against the 4-frame progression described in the PAL_M preset section above.
+- **SECAM:** verify against the 2-frame D′R/D′B progression described in the SECAM preset section above.
 
 `ld-decode` and `vhs-decode` frame-sequence conventions are documented in the informational notes in each preset section.
 
@@ -269,6 +345,7 @@ For these presets, the exact frame sample counts are:
 - **PAL:** 709,379 samples/frame
 - **NTSC:** 477,750 samples/frame
 - **PAL_M:** 477,225 samples/frame
+- **SECAM:** 709,379 samples/frame
 
 **Sequence progression integrity (normative):**
 

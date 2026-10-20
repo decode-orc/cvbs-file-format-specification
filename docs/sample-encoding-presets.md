@@ -134,7 +134,7 @@ $$
 $$
 
 - **Signed container:** The 16-bit range is −32768–32767. The blanking level offset centres the signal such that blanking maps to 0 in the int16 domain.
-- **Standard-derived offset:** Unlike `CVBS_TPG21_4FSC`, which uses a fixed device constant (508), the offset for this preset is the blanking level defined by the Video Standard Preset and therefore varies by standard (256 for PAL; 240 for NTSC and PAL_M).
+- **Standard-derived offset:** Unlike `CVBS_TPG21_4FSC`, which uses a fixed device constant (508), the offset for this preset is the blanking level defined by the Video Standard Preset and therefore varies by standard (256 for PAL and SECAM; 240 for NTSC and PAL_M).
 - **Encoded level examples (PAL, blanking = 256):** Sync tip (4) → −8064; Blanking (256) → 0; Black (256) → 0 (no setup: PAL black = blanking); White (844) → 18816; Peak (1019) → 24416.
 - **Encoded level examples (NTSC/PAL_M, blanking = 240):** Sync tip (16) → −7168; Blanking (240) → 0; Black (282) → 1344 (+7.5 IRE setup, SMPTE 170M-2004 Table 1); White (800) → 17920; Peak (1019) → 24928.
 
@@ -143,7 +143,7 @@ $$
 For dual-file YC output (`.cvbsy` and `.cvbsc`) under `CVBS_S16_4FSC`, interpretation is performed in the 10-bit domain before applying the offset/scale encoding:
 
 - **Luma (`.cvbsy`):** Uses the same 10-bit level definitions as composite output.
-- **Chroma (`.cvbsc`):** Uses a centred 10-bit representation where chroma zero is at 512 in the 10-bit domain, with excursion around that centre. In the stored int16 domain, chroma zero maps to (512 − blanking₁₀ᵦᵢₜ) × 32 (for example, 8192 for PAL, 8704 for NTSC and PAL_M).
+- **Chroma (`.cvbsc`):** Uses a centred 10-bit representation where chroma zero is at 512 in the 10-bit domain, with excursion around that centre. In the stored int16 domain, chroma zero maps to (512 − blanking₁₀ᵦᵢₜ) × 32 (for example, 8192 for PAL and SECAM, 8704 for NTSC and PAL_M).
 
 Any translation or offset behaviour applied to luma in this preset's 10-bit interpretation domain must be applied identically to chroma before converting to stored int16 words.
 

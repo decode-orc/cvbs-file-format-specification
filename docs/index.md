@@ -110,12 +110,12 @@ The metadata file is a **SQLite database** containing the core metadata table de
 ### SQLite Metadata Schema
 
 ```sql
-PRAGMA user_version = 11;
+PRAGMA user_version = 12;
 
 CREATE TABLE cvbs_file (
     cvbs_file_id                INTEGER PRIMARY KEY,
     preset                      TEXT    NOT NULL
-        CHECK (preset IN ('NTSC', 'PAL', 'PAL_M')),
+        CHECK (preset IN ('NTSC', 'PAL', 'PAL_M', 'SECAM')),
     sample_encoding_preset      TEXT    NOT NULL
         CHECK (sample_encoding_preset IN ('CVBS_U10_4FSC', 'CVBS_U16_4FSC', 'RAW_S16_28M', 'RAW_S16_40M', 'CVBS_TPG21_4FSC', 'CVBS_S16_4FSC')),
     signal_state_preset         TEXT    NOT NULL
@@ -146,6 +146,8 @@ CREATE TABLE audio_channel_pair (
     description                 TEXT
 );
 ```
+
+**Schema version 12:** `user_version = 12` adds `'SECAM'` to the `preset` CHECK constraint; the schema is otherwise identical to `user_version = 11`. A `user_version = 11` database remains valid and is interpreted unchanged under version 12 semantics. Producers writing a `SECAM` file must write `user_version = 12`; consumers that do not implement the `SECAM` preset must reject such files as described in [Preset System](#preset-system).
 
 ### `cvbs_file` Table
 
@@ -337,12 +339,13 @@ Audio is **synchronous** with video as defined by SMPTE 272M §3.15: the audio s
 | Preset  | Frame rate     | Samples per frame | Audio frame sequence |
 |---------|----------------|-------------------|----------------------|
 | `PAL`   | 25 fps (exact) | **1920** (exact, constant) | 1 frame |
+| `SECAM` | 25 fps (exact) | **1920** (exact, constant) | 1 frame |
 | `NTSC`  | 30000⁄1001 fps | **8008⁄5** (1602 or 1601)  | 5 frames (**8008** samples) |
 | `PAL_M` | 30000⁄1001 fps | **8008⁄5** (1602 or 1601)  | 5 frames (**8008** samples) |
 
 As required by the note to SMPTE 272M §3.15, the video and audio clocks must be derived from the same source; simple frequency synchronisation could eventually result in a missing or extra sample within the audio frame sequence.
 
-**PAL:** 48000 ÷ 25 = **1920** samples per frame exactly. The audio frame sequence is 1 frame; every frame carries 1920 samples.
+**PAL and SECAM:** 48000 ÷ 25 = **1920** samples per frame exactly. The audio frame sequence is 1 frame; every frame carries 1920 samples.
 
 **NTSC and PAL_M:** 48000 ÷ (30000⁄1001) = **8008⁄5** samples per frame. The audio frame sequence is 5 video frames containing exactly **8008** samples. Following SMPTE 272M §14.3 and Table 1, odd-numbered audio frames (1, 3, 5) carry **1602** samples and even-numbered audio frames (2, 4) carry **1601** samples, with no exceptions at 48 kHz.
 
@@ -360,7 +363,7 @@ To locate the audio samples for stored frame *n* (zero-based), the sample offset
 
 > offset(*n*) = 8008 × ⌊*n* ⁄ 5⌋ + offset within sequence for (*n* mod 5)
 
-For a file containing *N* video frames the total audio sample count in the WAV `data` chunk of every channel pair file is offset(*N*) — that is, 1920 × *N* for `PAL`, and 8008 × ⌊*N* ⁄ 5⌋ plus the partial-sequence offset for `NTSC` and `PAL_M`. All channel pair files accompanying a CVBS file must contain the same number of samples.
+For a file containing *N* video frames the total audio sample count in the WAV `data` chunk of every channel pair file is offset(*N*) — that is, 1920 × *N* for `PAL` and `SECAM`, and 8008 × ⌊*N* ⁄ 5⌋ plus the partial-sequence offset for `NTSC` and `PAL_M`. All channel pair files accompanying a CVBS file must contain the same number of samples.
 
 ### Audio–Video Synchronisation
 
