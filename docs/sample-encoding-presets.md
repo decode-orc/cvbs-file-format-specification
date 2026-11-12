@@ -87,8 +87,12 @@ Any integer-domain translation applied by the producer to `CVBS_U16_4FSC` sample
 
 ## Preset: `CVBS_TPG21_4FSC`
 
-**Applicable sources:** Snell & Wilcox TPG21 test pattern generator and compatible equipment producing 10-bit CVBS output files.
-**Word format:** Each sample is stored as a **signed 16-bit little-endian integer**. The 10-bit sample value (0–1023) is encoded using a fixed device offset of 508 and a scale factor of 64:
+**Applicable sources:** Snell & Wilcox TPG20/TPG21 test pattern generators and compatible equipment. These generators store test patterns as 10-bit luma (Y) and 9-bit modulated chroma (C), and produce 10-bit digital CVBS live output via 4fsc serial (SDI) or parallel digital interfaces (which may also be converted to analogue output).
+
+!!! note "Informative — provenance only"
+    This note is background information and has no effect on the preset definition. The stored patterns are also available in Snell & Wilcox's own file formats (`.PLN` for uncompressed and `.CPS` for lossless RLE-compressed data), which carry the same 10-bit Y / 9-bit C representation. Those native files are not the format described by this preset; files using this preset are typically produced by converting them with an external third-party utility. The normative definition of this preset is the word format and amplitude mapping below, regardless of how a file was produced.
+
+**Word format:** Each sample is stored as a **signed 16-bit little-endian integer**. The 10-bit sample value (0–1023) is encoded using a fixed offset of 508 and a scale factor of 64:
 
 $$
 \text{int16} = (\text{value}_{10\text{-bit}} - 508) \times 64
@@ -102,7 +106,7 @@ $$
 
 - **Signed container:** The 16-bit range is −32768–32767. The offset of 508 centres the signal such that 10-bit values above 508 produce non-negative int16 words, and values below 508 produce negative words.
 - **Maximum legal encoded value:** The highest legal 10-bit value (1019) is stored as (1019 − 508) × 64 = 32704.
-- **Device constant:** The offset 508 is a hardware constant of the Snell & Wilcox TPG21; it is not derived from any video standard and applies identically to PAL and NTSC files.
+- **Fixed conversion constant:** The offset 508 is a fixed constant of the third-party conversion to the 16-bit signed format; it is not derived from any video standard and applies identically to PAL and NTSC files.
 
 **Amplitude mapping:** The sync tip, blanking, black, white, and peak 10-bit sample values are defined by the Video Standard Preset (see Section 4.2 of the main specification). The sample level tables in [video-standard-presets](video-standard-presets.md) are the normative reference values, interpreted in the 10-bit domain before applying the signed encoding described above.
 
@@ -134,7 +138,7 @@ $$
 $$
 
 - **Signed container:** The 16-bit range is −32768–32767. The blanking level offset centres the signal such that blanking maps to 0 in the int16 domain.
-- **Standard-derived offset:** Unlike `CVBS_TPG21_4FSC`, which uses a fixed device constant (508), the offset for this preset is the blanking level defined by the Video Standard Preset and therefore varies by standard (256 for PAL and SECAM; 240 for NTSC and PAL_M).
+- **Standard-derived offset:** Unlike `CVBS_TPG21_4FSC`, which uses a fixed conversion constant (508), the offset for this preset is the blanking level defined by the Video Standard Preset and therefore varies by standard (256 for PAL and SECAM; 240 for NTSC and PAL_M).
 - **Encoded level examples (PAL, blanking = 256):** Sync tip (4) → −8064; Blanking (256) → 0; Black (256) → 0 (no setup: PAL black = blanking); White (844) → 18816; Peak (1019) → 24416.
 - **Encoded level examples (NTSC/PAL_M, blanking = 240):** Sync tip (16) → −7168; Blanking (240) → 0; Black (282) → 1344 (+7.5 IRE setup, SMPTE 170M-2004 Table 1); White (800) → 17920; Peak (1019) → 24928.
 
