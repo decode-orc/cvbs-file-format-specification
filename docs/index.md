@@ -4,7 +4,7 @@
 
 ## Introduction
 
-This document defines the **CVBS File Format** for use with the `ld-decode`, `vhs-decode` and related projects. **CVBS** (Colour, Video, Blank, and Sync) describes the full class of analogue video signal — both composite (luma and chroma combined into a single signal) and component YC representations carry the same Colour, Video, Blank, and Sync elements and are therefore both CVBS signals.
+This document defines the **CVBS File Format** for use with the `ld-decode`, `vhs-decode` and related projects.
 
 The format is organised around three independent **preset systems**, each of which captures a distinct dimension of the signal:
 
@@ -15,6 +15,17 @@ The format is organised around three independent **preset systems**, each of whi
 Every CVBS file is described by one preset from each system. Together they specify how to interpret sample amplitudes, when normative field sizing rules apply, and how reliable phase and level measurements are expected to be.
 
 The format accommodates **non-standard cases** (e.g., LaserDisc PAL pilot bursts and variations such as NTSC-J) through metadata flags rather than structural changes.
+
+### Terminology: CVBS, Composite and Y+C
+
+In this specification, **CVBS** (Colour, Video, Blank, and Sync) names the *signal* being stored — the set of Colour, Video, Blank, and Sync components that make up an analogue colour video signal — and, by extension, this file format specification. It does not, by itself, imply a particular way of storing those components.
+
+**Composite** and **Y+C** are the two *file representations* of that same underlying CVBS signal. They differ only in how the components are stored:
+
+- **Composite** (single file, `.cvbs`): luma (Video, Blank, and Sync) and chroma (Colour) are combined into one signal and stored in one file. This is the conventional meaning of "CVBS" in broadcast and consumer video usage.
+- **Y+C** (dual file, `.cvbsy` + `.cvbsc`): the luma file (**Y**) carries the Video, Blank, and Sync components and the chroma file (**C**) carries the Colour component. Neither file is a complete CVBS signal on its own; together the pair represents the full CVBS signal, split across two files.
+
+Where this document refers to "YC CVBS" or "dual-file YC CVBS", it means the Y+C file representation of a CVBS signal. The representation used by a given file is declared explicitly by the [`signal_type`](#signal_type) metadata field.
 
 ---
 
