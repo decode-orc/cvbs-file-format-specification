@@ -13,12 +13,29 @@ assignees: ''
 - [ ] Error or factual mistake in the specification
 - [ ] Ambiguity or unclear wording
 - [ ] Missing content or gap in coverage
-- [ ] Proposal for a new section or feature (Part 2 / Under Discussion)
+- [ ] Proposal for a new preset (video standard, sample encoding, or signal state)
+- [ ] Proposal for a new extension format or a change to an existing extension
+- [ ] Proposal for another new section or feature
 - [ ] Other
+
+## Affected Page(s)
+
+<!-- Place an x against each page of the specification affected by this issue -->
+
+- [ ] CVBS File Format Specification (main page)
+- [ ] Video Standard Presets
+- [ ] Sample Encoding Presets
+- [ ] Signal State Presets
+- [ ] Audio Data
+- [ ] Dropout Extension Format
+- [ ] EFM Extension Format
+- [ ] AC3 Extension Format
+- [ ] Not specific to a page (e.g. site, repository, or overall structure)
 
 ## Section Reference
 
-<!-- Provide the section number(s) and heading(s) affected, e.g. "Section 3.1 Sample Encoding" -->
+<!-- Give the heading(s) affected on the page(s) above, e.g. "Video Data Format > Sample Encoding"
+     or "Preset: `PAL`". A link to the heading on the published site is also helpful. -->
 
 **Section(s):**
 
@@ -42,5 +59,6 @@ assignees: ''
 
 ## References
 
-<!-- List any relevant external references: standards documents (EBU 3280, SMPTE ST.0244),
+<!-- List any relevant external references: standards documents (e.g. EBU 3280, SMPTE ST.0244,
+     SMPTE 170M, SMPTE 272M),
      related issues, or other sources that support this change. -->

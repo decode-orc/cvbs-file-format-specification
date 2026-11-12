@@ -3,6 +3,7 @@ nav:
   - Video Standard Presets: video-standard-presets.md
   - Sample Encoding Presets: sample-encoding-presets.md
   - Signal State Presets: signal-state-presets.md
+  - Audio Data: audio-data.md
   - Extensions:
     - Dropout Extension Format: extensions/dropout-extension-format.md
     - EFM Extension Format: extensions/efm-extension-format.md
