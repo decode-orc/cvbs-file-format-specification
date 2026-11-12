@@ -9,7 +9,7 @@ A Signal State Preset captures three independent axes of the signal's **sampling
 | Axis | Standard state | Non-standard state |
 |---|---|---|
 | Sample rate | Exactly 4×fsc for the declared Video Standard Preset | Non-standard (e.g., oversampled at 28.6 MHz or 40 MHz, or line-locked 13.5 MHz) |
-| Time-base stable | Yes — fixed, known sample count per line; 0H-referenced fields | No — line lengths vary, timing is raw |
+| Time-base stable | Yes — fixed, known samples per line (may be fractional); 0H-referenced fields | No — line lengths vary, timing is raw |
 | Phase locked | Yes — content is sampled at standard subcarrier-reference-locked phase points | No — content is not sampled at standard subcarrier-reference-locked phase points |
 
 These axes are independent, with one implication: phase locked requires time-base stable (and therefore `RAW` implies unlocked). In particular, a file can be time-base stable but not phase locked (e.g., standard NTSC output in the `.tbc` file format of `ld-decode` or `vhs-decode`: timing is corrected but the subcarrier phase at each field is not anchored to a canonical 0° reference), and a file at a non-standard sample rate can still be time-base stable (e.g., the output of a time-base corrector (TBC) running at an oversampled rate).
@@ -24,12 +24,12 @@ The sample rate is `STANDARD` when it is exactly 4×fsc for the declared Video S
 
 A signal is **time-base stable** when it exhibits the following observable properties:
 
-- Every stored line contains a fixed, known number of samples.
+- The number of samples per line is fixed and known: it is determined by the declared Video Standard Preset and sample rate, not by the timing of the capture. This number need not be an integer, and stored lines need not all hold the same whole number of samples. For example, at the `PAL` 4×fsc rate there are 1135.0064 (1135 + 4/625) sample periods per line, so the line-to-sample mapping is fixed at frame level (exactly 709,379 samples per frame) rather than by an identical whole-sample count on every line. Where the number is an integer (for example `NTSC` at 4×fsc, 910 samples per line), every stored line contains that same number of samples.
 - Every stored field is 0H-referenced as defined in [Stored Frame and Line Origin](video-standard-presets.md#stored-frame-and-line-origin-normative).
 
 Time-base stability is defined by these properties of the stored signal, **not by its provenance**. A signal is time-base stable whether that state was achieved by applying a time-base corrector to an unstable analogue source (LaserDisc, analogue VTR), by resampling during software decode, by digital synthesis (`cvbs-encode`, a test pattern generator), or by digitising an inherently stable source (a broadcast feed, a composite digital VTR such as D-2/D-3). Equivalently: a time-base stable signal is one that **requires no time-base correction**.
 
-In the digital domain, time-base stability is what line-locked sampling provides: a fixed integer number of samples per line, anchored to the line timing reference.
+Line-locked sampling, where the sampling clock is an integer multiple of the line frequency (for example 13.5 MHz, 864 samples per 625-line line), is one way to obtain a time-base stable signal, but time-base stability does not require it. Subcarrier-locked 4×fsc sampling of `PAL` is time-base stable even though no whole number of samples spans a line.
 
 ### Phase locked
 
@@ -42,7 +42,7 @@ Notes:
 - Line-locked sampling that is not subcarrier-locked (for example 13.5 MHz component-style sampling of a composite signal) is time-base stable but **not** phase locked.
 - A signal with no usable subcarrier reference (for example monochrome material) cannot be phase locked and must be declared `UNLOCKED`.
 - A Video Standard Preset with frequency-modulated chrominance (`SECAM`) defines no Sc/H convention, so files declaring it cannot be phase locked and must be declared `UNLOCKED` or `RAW` (see [`SECAM`](video-standard-presets.md#preset-secam)).
-- For PAL, 4×fsc is not an integer multiple of the line frequency in the analogue domain, so a line-locked sampling *clock* cannot simultaneously be subcarrier-locked. The output of a *resampling* time-base correction process (for example `ld-decode`, which mathematically resamples the captured signal onto the ideal 4×fsc grid when producing its `.tbc`-format output), however, can satisfy both properties in the stored digital domain, because a resampler is not constrained by a single physical clock; the phase-locked assertion applies to the stored samples under the declared preset's Sc/H convention.
+- For `PAL`, 4×fsc is not an integer multiple of the line frequency (4×fsc = (1135 + 4/625) × fH), so no sampling grid can be both line-locked (a whole number of samples on every line) and subcarrier-locked. These are two different grids, and both are time-base stable. Only the subcarrier-locked 4×fsc grid, with its 709,379-sample frame, can be phase locked under the `PAL` preset. A grid with a whole number of samples on every line (for example 1135 samples per line) is not the `PAL` 4×fsc lattice: it does not meet the 709,379-sample frame total, so it is `NONSTANDARD` in rate and not phase locked. How the stored samples were produced does not matter. A hardware clock locked to the subcarrier, a software resampling time-base corrector, and a synthesiser such as `cvbs-encode` can all produce the subcarrier-locked grid, and the phase-locked assertion applies to the stored samples under the declared preset's Sc/H convention.
 
 ## Continuity is not a Preset Axis
 
@@ -56,7 +56,7 @@ Producers must not downgrade the declared preset (for example from `LOCKED` to `
 
 The preset governs several aspects of format interpretation:
 
-- **Normative sample-count constraints** as defined by the declared Video Standard Preset in [video-standard-presets](video-standard-presets.md) apply only when the signal is time-base stable and the sample rate is the standard 4×fsc. Depending on the standard, these constraints may be defined per field, per frame, or both. Without time-base stability there is no guarantee of a fixed sample count per line, so consumers must not infer fixed byte sizes from presets alone.
+- **Normative sample-count constraints** as defined by the declared Video Standard Preset in [video-standard-presets](video-standard-presets.md) apply only when the signal is time-base stable and the sample rate is the standard 4×fsc. Depending on the standard, these constraints may be defined per field, per frame, or both. Without time-base stability there is no guarantee of a fixed sample count per line, so consumers must not infer fixed byte sizes from presets alone. Even when the signal is time-base stable, consumers must not locate a line's samples as `line_index × samples_per_line` unless the declared Video Standard Preset defines an integer number of samples per line (for example `NTSC`). For a non-orthogonal preset (for example `PAL`), line positions follow from the fractional samples-per-line value within the frame, and only the frame total is a whole-sample constraint.
 - **Signal level compliance** is only meaningful when the signal is time-base stable and the Sample Encoding Preset is `CVBS_U10_4FSC` or `CVBS_U16_4FSC`. A raw RF capture contains signal levels that bear no relation to the preset's reference sample values.
 - **Sample-coordinate anomaly annotations** (for example dropout coordinates) are only stable when lines have a fixed, known length, i.e., when the signal is time-base stable. Such annotations are extension metadata, not part of the core schema.
 - **Subcarrier phase analysis:** whether the phase of individual samples can be computed from position is governed by the phase-locked axis of the preset. Whether phase and colour sequence position progress without breaks between fields is governed by the [`sequence_continuous`](index.md#sequence_continuous) metadata field, not by the preset.
