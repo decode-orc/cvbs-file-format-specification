@@ -31,6 +31,13 @@ Stored frames are **0H-aligned**. The horizontal timing reference **0H** is the 
 
 This storage origin intentionally follows the line convention of `ld-decode`/`vhs-decode` `.tbc`-format output and **differs from the digital line structure of the 4fsc interface standards** (SMPTE 244M-2003 and EBU Tech. 3280-E), in which the digital line begins with the digital active line and 0H falls late in the digital line — between samples 784 and 785 for NTSC, and midway between samples 957 and 958 on broadcast frame line 1 of PAL frame 1. Informational blocks in this document that quote sample numbers from those standards use the source standard's digital-line coordinates unless explicitly restated in stored coordinates.
 
+> *(Informational — converting from 4fsc digital-interface captures):* Material captured or generated in the digital line structure of SMPTE 244M-2003 or EBU Tech. 3280-E (for example D2/D3 transfers or bit-parallel/serial composite interface dumps) differs from this specification's stored layout only by a constant whole-sample offset; no resampling or alignment metadata is required. Both conventions carry the same continuous 4fsc sample stream, and at the normative 0° SC/H sampling phase 0H falls exactly midway between two samples, so the first sampling instant after 0H is unambiguous. To convert, discard the samples that precede the first sample after the 0H that begins broadcast frame line 1, then store consecutive whole frames from that point:
+>
+> - **`NTSC`:** the first stored sample is SMPTE 244M-2003 digital-line sample **785**; equivalently, SMPTE digital-line sample 0 is stored sample **125** of the same line. Each subsequent stored frame is the next 477,750 samples (525 × 910).
+> - **`PAL`:** the first stored sample is EBU Tech. 3280-E digital-line sample **958** of the digital line carrying the frame-1 line-1 sync edge. Because the PAL 4fsc lattice repeats at frame rate with exactly 709,379 samples per frame, each subsequent stored frame is the next 709,379 samples; no per-line realignment is performed.
+>
+> Converting in the opposite direction applies the same offsets in reverse. Any partial frame at the start or end of the source stream that cannot form a complete stored frame is not stored.
+
 ---
 
 ## Preset: `PAL`
