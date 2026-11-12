@@ -1,9 +1,10 @@
 ## Description
 
-<!-- Describe the change being made to the specification. Reference the section(s) affected,
-     e.g. "Section 3.1 Sample Encoding". -->
+<!-- Describe the change being made to the specification. Reference the page(s) and heading(s)
+     affected, e.g. "Main page: Video Data Format > Sample Encoding" or
+     "Video Standard Presets: Preset: `PAL`". -->
 
-**Section(s) affected:**
+**Page(s) and section(s) affected:**
 
 ## Type of Change
 
