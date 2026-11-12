@@ -313,7 +313,7 @@ Based on these sizes, the following are recommended:
 
 - **Testing limit:** Producers and consumers should be verified against files of at least **650,000 frames** (approximately 6 hours of NTSC video, ~620 GB of composite sample data) — the practical worst case for the supported source media.
 - **64-bit file handling:** At roughly 1 MB per frame, even a few minutes of video exceeds 4 GiB. Implementations should use 64-bit file offsets and sizes throughout, and should process files as streams rather than loading them into memory in their entirety.
-- **Storage multipliers:** Dual-file YC storage approximately doubles the sample data size (separate `.cvbsy` and `.cvbsc` files). Each audio channel pair adds approximately 6.2 GB over 6 hours (48 kHz × 24-bit × 2 channels).
+- **Storage multipliers:** Dual-file YC storage approximately doubles the sample data size (separate `.cvbsy` and `.cvbsc` files). Each audio channel pair adds approximately 6.2 GB over 6 hours (48 kHz × 24-bit × 2 channels). A channel pair passes the 4 GiB RIFF WAV limit at approximately 4 hours 8 minutes, beyond which it is written as RF64 (see [RF64 for Long Recordings](audio-data.md#rf64-for-long-recordings)).
 
 ---
 

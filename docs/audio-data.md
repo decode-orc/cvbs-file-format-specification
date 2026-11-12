@@ -20,15 +20,31 @@ Only the linearly represented audio sample data is stored. The AES sample validi
 
 ## WAV File Format
 
-Each channel pair must be a standard **RIFF WAV** file with the following properties:
+Each channel pair must be a **RIFF WAV** file or, where the size of the audio requires it, an **RF64** file (see [RF64 for Long Recordings](#rf64-for-long-recordings)), with the following properties:
 
-- **Container:** RIFF/WAVE with a standard RIFF header (`RIFF` chunk, `WAVE` format identifier, `fmt ` sub-chunk, `data` sub-chunk)
+- **Container:** RIFF/WAVE with a standard RIFF header (`RIFF` chunk, `WAVE` format identifier, `fmt ` sub-chunk, `data` sub-chunk), or RF64/WAVE as defined below
 - **Format tag:** PCM (`0x0001`)
 - **Channels:** 2 (one channel pair)
 - **Sample rate:** 48000 Hz (the `fmt ` chunk `nSamplesPerSec` field shall contain **48000**)
 - **Bit depth:** 24-bit signed integer (twos complement), little-endian
 
-No compression, no extended `fmt ` chunks, and no non-standard RIFF variants are permitted.
+No compression, no extended `fmt ` chunks, and no RIFF variants other than RF64 as described below are permitted. Readers must accept both RIFF and RF64 channel pair files.
+
+### RF64 for Long Recordings
+
+A RIFF WAV file stores its chunk sizes in 32-bit fields, so neither the file nor its `data` chunk can exceed 4 GiB. At 48 kHz, 24-bit, 2 channels a channel pair occupies 288,000 bytes per second and reaches this limit after approximately **4 hours 8 minutes** (about 372,800 `PAL` or `SECAM` frames, or about 446,900 `NTSC` or `PAL_M` frames). Video tape captures of up to six hours are an expected use case (see [Recommended Testing Limits](index.md#recommended-testing-limits-informative)).
+
+A channel pair file whose RIFF chunk size (the total file size minus 8 bytes) would exceed `0xFFFFFFFE` must instead be written as **RF64**, as defined by [EBU Tech 3306](https://tech.ebu.ch/publications/tech3306), *MBWF / RF64: An extended File Format for Audio*:
+
+- The file begins with the `RF64` chunk identifier in place of `RIFF`, followed by the `WAVE` format identifier.
+- A `ds64` chunk immediately follows the `WAVE` format identifier. It carries the 64-bit RIFF size, the 64-bit `data` chunk size, and the 64-bit sample count. The sample count must be filled in and must equal the number of sample frames (one sample per channel) in the `data` chunk, which is fixed by the frame count as described in [Synchronous Audio](#synchronous-audio). The `ds64` table length must be 0.
+- The 32-bit size fields of the `RF64` chunk and the `data` chunk are set to `0xFFFFFFFF`; readers must take the corresponding sizes from the `ds64` chunk.
+- The `fmt ` chunk and the sample data in the `data` chunk are identical to those of a RIFF WAV file.
+
+All channel pair files accompanying a CVBS file must use the same container: if any channel pair file requires RF64, all channel pair files must be written as RF64. Otherwise, a channel pair file that fits within the RIFF limit must be written as RIFF, not RF64, so that files of conventional length remain readable by any WAV reader. RF64 files keep the `.wav` extension and the same file naming as RIFF files.
+
+!!! note "Informative: writing when the final length is unknown"
+    EBU Tech 3306 describes how a producer that does not know the final length when it starts writing may reserve a `JUNK` chunk of the size of the `ds64` chunk immediately after the `WAVE` identifier. If the file stays within the RIFF limit, the `JUNK` chunk is left in place and the file is a valid RIFF WAV file; if it exceeds the limit, the `RIFF` identifier is replaced by `RF64` and the `JUNK` chunk is rewritten as the `ds64` chunk. Readers must therefore skip any `JUNK` chunk.
 
 **File naming:** `<basename>_audio_<channel_pair>.wav`
 
